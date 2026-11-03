@@ -1,0 +1,36 @@
+/* Presento v7 tokens — Figma "v7 · 정리" 페이지와 1:1 */
+:root {
+  /* color: 6 roles. Evidence blue is reserved for timestamp evidence only. */
+  --ink: #0e0f12;
+  --ink-2: #2a2d35;
+  --evidence: #2950ff;
+  --evidence-tint: #e8edff;
+  --ground-top: #e9ecf3;
+  --ground-bottom: #f7f8fa;
+  --surface: #ffffff;
+  --text: #0e0f12;
+  --text-2: #4b5160;
+  --text-3: #5f6573; /* AA on --ground-top */
+  --line: #dde1e9;
+  --line-2: #c5cbd6;
+  --error: #c0262d;
+  --video: #0e0f12;
+  --on-ink: #ffffff;
+  --on-ink-2: #b7bcc8;
+
+  /* type */
+  --font-ui: 'Gothic A1', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --font-data: 'Red Hat Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* space: 4pt base, use only these */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-6: 24px; --s-8: 32px; --s-12: 48px; --s-18: 72px;
+
+  --radius-control: 10px;
+  --radius-media: 18px;
+  --radius-thumb: 10px;
+  --shadow-media: 0 12px 32px rgba(13, 20, 51, 0.12);
+  --ring: 0 0 0 3px rgba(41, 80, 255, 0.35);
+
+  --content: 1120px;
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+}
