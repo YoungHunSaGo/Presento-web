@@ -115,7 +115,9 @@ export const mockReportAttempt1: Report = {
   ...mockReport, analysisId: 'a-1c4f', attemptNo: 1, durationSec: 312.0, createdAt: '2026-11-03T21:00:00+09:00',
   overall: { ...mockReport.overall, score: 64, grade: 'C+', summary: '내용은 준비됐지만 말 속도가 빠르고 추임새가 많아 핵심이 묻혀요.' },
   scores: [{ category: 'DELIVERY', label: '전달력', score: 58 }, { category: 'NONVERBAL', label: '비언어', score: 70 }, { category: 'CONTENT', label: '내용 구성', score: 65 }],
-  metrics: { ...mockReport.metrics, speech: { ...mockReport.metrics.speech, syllablesPerMin: 392, fillerCount: 31, fillers: [{ word: '약간', count: 9 }, { word: '이제', count: 12 }, { word: '음', count: 10 }] } },
+  metrics: { ...mockReport.metrics, speech: { ...mockReport.metrics.speech, syllablesPerMin: 392, fillerCount: 31, fillers: [{ word: '약간', count: 9 }, { word: '이제', count: 12 }, { word: '음', count: 10 }] },
+    // 1회차는 카메라에 상반신이 안 잡혀 자세·제스처를 측정하지 못한 경우를 시연
+    nonverbal: { ...mockReport.metrics.nonverbal, postureStability: null, gesturePerMin: null } },
   feedbacks: [
     { ...feedbacks[0], id: 'f-11', start: 0, end: 44, description: '첫 44초가 분당 415음절로 빨라요.' },
     { ...feedbacks[1], id: 'f-12', start: 58, end: 92 },

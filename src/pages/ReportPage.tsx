@@ -156,9 +156,9 @@ function ReportView({ report, videoUrl, videoError, title, nextNo }: { report: R
             <Row k="말 속도" v={`${sp.syllablesPerMin} 음절/분`} note={sp.paceSeries[0] ? `도입 30초 ${sp.paceSeries[0].value}` : undefined} />
             <Row k="추임새" v={`${sp.fillerCount}회`} note={sp.fillers.map((f) => `${f.word} ${f.count}`).join(', ')} />
             <Row k="침묵" v={`${sp.silenceCount}회`} note={`가장 길게 ${sp.longestSilenceSec}초`} />
-            <Row k="정면 시선" v={`${Math.round(nv.gazeFrontRatio * 100)}%`} />
-            <Row k="자세 안정도" v={`${Math.round(nv.postureStability * 100)}%`} />
-            <Row k="제스처" v={`${nv.gesturePerMin}회/분`} />
+            <Row k="정면 시선" v={nv.gazeFrontRatio === null ? null : `${Math.round(nv.gazeFrontRatio * 100)}%`} />
+            <Row k="자세 안정도" v={nv.postureStability === null ? null : `${Math.round(nv.postureStability * 100)}%`} />
+            <Row k="제스처" v={nv.gesturePerMin === null ? null : `${nv.gesturePerMin}회/분`} />
             <Row k="발표 시간" v={shortDuration(report.durationSec)} note={sp.timeLimitSec ? `제한 ${shortDuration(sp.timeLimitSec)}${sp.overTimeSec ? `, ${sp.overTimeSec}초 초과` : ''}` : undefined} />
           </dl>
         </section>
@@ -213,4 +213,5 @@ function Slides({ report, onSeek }: { report: Report; onSeek: (t: number) => voi
 }
 
 const Block = ({ title, children }: { title: string; children: ReactNode }) => <div className="stack" style={{ gap: 6 }}><p className="t-body-strong">{title}</p>{children}</div>;
-const Row = ({ k, v, note }: { k: string; v: string; note?: string }) => (<div className="mrow"><dt className="t-small c-2">{k}</dt><dd className="t-data" style={{ fontWeight: 700 }}>{v}</dd>{note ? <dd className="t-caption c-3">{note}</dd> : <dd />}</div>);
+// v가 null이면 측정하지 못한 지표(예: 카메라에 몸이 안 잡힘) — 숫자 대신 '측정 불가'
+const Row = ({ k, v, note }: { k: string; v: string | null; note?: string }) => (<div className="mrow"><dt className="t-small c-2">{k}</dt>{v === null ? <dd className="t-small c-3">측정 불가</dd> : <dd className="t-data" style={{ fontWeight: 700 }}>{v}</dd>}{note ? <dd className="t-caption c-3">{note}</dd> : <dd />}</div>);

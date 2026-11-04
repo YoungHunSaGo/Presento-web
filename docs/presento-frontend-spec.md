@@ -423,7 +423,7 @@ await axios.put(upload.uploadUrl, file, {
 | `scores` | 항목별 점수 막대 또는 레이더 차트 | 항목은 항상 3개 |
 | `metrics.speech.paceSeries` | 말 속도 꺾은선 차트 | `t`는 구간 시작 초, 30초 간격 |
 | `metrics.speech.fillers` | 추임새 순위 목록 | 많은 순으로 정렬되어 옴 |
-| `metrics.nonverbal` | 비언어 지표 카드 | 비율은 0~1, 화면에서 %로 변환 |
+| `metrics.nonverbal` | 비언어 지표 카드 | 비율은 0~1, 화면에서 %로 변환. `gazeFrontRatio`·`postureStability`·`gesturePerMin`은 `null`일 수 있음(카메라에 몸이 안 잡혀 측정 못 함). `null`이면 숫자 대신 "측정 불가"로 표시 |
 | `nonverbal.lowConfidenceRanges` | 타임라인에 회색 구간 | 얼굴 인식이 어려워 평가에서 뺀 구간 |
 | `feedbacks` | 타임라인 마커 + 피드백 목록 | 마커 클릭 시 `video.currentTime = start` |
 | `feedbacks.severity` | 마커 색 | `INFO` 파랑, `WARNING` 주황, `CRITICAL` 빨강 |

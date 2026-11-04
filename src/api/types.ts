@@ -66,7 +66,8 @@ export interface Report {
       fillers: { word: string; count: number }[]; silenceCount: number; longestSilenceSec: number;
       timeLimitSec: number | null; overTimeSec: number;
     };
-    nonverbal: { gazeFrontRatio: number; postureStability: number; gesturePerMin: number; lowConfidenceRanges: { start: number; end: number }[] };
+    // 카메라에 몸이 안 잡혀 측정하지 못한 지표는 null
+    nonverbal: { gazeFrontRatio: number | null; postureStability: number | null; gesturePerMin: number | null; lowConfidenceRanges: { start: number; end: number }[] };
   };
   feedbacks: Feedback[];
   transcript: { segments: Segment[] };
