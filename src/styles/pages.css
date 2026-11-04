@@ -18,7 +18,7 @@
 .ptable { width: 100%; border-collapse: collapse; }
 .ptable th { text-align: left; font-size: 13px; font-weight: 500; color: var(--text-3); padding: 8px 0; border-bottom: 1px solid var(--line-2); }
 .ptable td { padding: 18px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
-/* 목적·연습·점수·만든 날은 같은 글꼴로 맞춘다. 숫자는 자릿수 폭을 고정. */
+/* 목적·연습·점수·날짜는 같은 글꼴로 맞춘다. 숫자는 자릿수 폭을 고정. */
 .ptable td:not(:first-child) { font-size: 15px; line-height: 22px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 /* td 자체를 grid 로 만들면 표 셀의 세로 가운데 정렬이 깨져서 안쪽 div 에 준다. */
 .ptable-name { display: grid; gap: 2px; }

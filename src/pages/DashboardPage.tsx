@@ -19,7 +19,7 @@ export function DashboardPage() {
         <Link to="/presentations/new" className="btn btn-primary">발표 만들기</Link>
       </div>
       <table className="ptable">
-        <thead><tr><th>발표</th><th>목적</th><th className="r">연습</th><th className="r">최근 점수</th><th className="r">만든 날</th></tr></thead>
+        <thead><tr><th>발표</th><th>목적</th><th className="r">연습</th><th className="r">최근 점수</th><th className="r">날짜</th></tr></thead>
         <tbody>
           {q.data.items.map((p) => {
             const meta = [p.timeLimitSec ? `제한 ${minutesLabel(p.timeLimitSec)}` : null, p.hasSlides ? '슬라이드 있음' : null].filter(Boolean).join(', ');
