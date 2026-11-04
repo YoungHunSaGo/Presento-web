@@ -1,10 +1,54 @@
-# Presento 프론트엔드 개발 가이드 (화면 기획 + API 명세)
+# Presento 프론트엔드 개발 가이드 v2 (화면 기획 + API 명세 + 서버 연결 안내)
 
 > **AI 코딩 도구에게:** 이 문서는 Presento 웹 프론트엔드를 만들기 위한 유일한 기준 명세다.
 > - API 경로, 필드명, 상태값, 에러 코드는 이 문서에 적힌 그대로 쓴다. 없는 필드나 엔드포인트를 지어내지 않는다.
-> - 백엔드가 아직 없으므로 MSW(Mock Service Worker)로 4·5장의 예시 JSON을 그대로 응답하는 목업을 먼저 만든다.
 > - 명세가 모호하거나 빠진 부분이 있으면 임의로 정하지 말고 `TODO(spec):` 주석을 남기고 사람에게 묻는다.
 > - 권장 스택: React + TypeScript (Vite), React Router, axios, TanStack Query, MSW, Recharts.
+
+---
+
+## 0. 실제 백엔드 서버 연결 정보 (Tailscale 설치 불필요 — 공개 HTTPS 터널)
+
+집 서버(RTX 3090)에 백엔드와 저장소(MinIO)가 기동되어 있으며, **별도 VPN/Tailscale 설치 없이 인터넷 어디서나 바로 접속할 수 있는 공개 HTTPS 주소**가 열려 있습니다.
+
+### 연결 주소 요약
+
+| 구분 | 주소 |
+| --- | --- |
+| **프론트엔드 `.env` (`VITE_API_BASE_URL`)** | `https://rose-code-korean-teaching.trycloudflare.com/api/v1` |
+| **Swagger 문서 (`/docs`)** | `https://rose-code-korean-teaching.trycloudflare.com/docs` |
+| **Health 확인** | `https://rose-code-korean-teaching.trycloudflare.com/api/v1/health` |
+| **영상·PDF 업로드/재생 저장소 (Presigned URL 호스트)** | `https://lows-evaluation-barrel-vegas.trycloudflare.com` (API가 발급하는 `uploadUrl`·`videoUrl`에 자동 반영됨) |
+| *(선택) Tailscale 내부망 직접 연결 시* | API: `http://100.107.63.5:8000/api/v1`, Swagger: `http://100.107.63.5:8000/docs` |
+
+### 프론트엔드 설정 방법 (`.env.local` 또는 `.env`)
+
+```bash
+VITE_API_BASE_URL=https://rose-code-korean-teaching.trycloudflare.com/api/v1
+```
+
+### 연동 시 꼭 지켜야 할 주의사항 5가지
+
+1. **회원가입 이메일은 정상 도메인 형식을 사용하세요:**
+   - 예: `test1@example.com`, `student@ycu.ac.kr` (`@` 뒤 도메인이 유효한 형식이어야 통과합니다).
+2. **영상·PDF 업로드(Presigned PUT) 시 `Authorization` 헤더를 절대 넣지 마세요:**
+   - N1(영상)과 P6(슬라이드 PDF) 응답의 `uploadUrl`은 우리 API 서버가 아니라 S3(MinIO) 저장소 터널(`https://lows-evaluation-barrel-vegas.trycloudflare.com/presento/...`)로 직접 업로드하는 서명된 URL입니다.
+   - 요청 시 **`headers`에 응답으로 받은 `{"Content-Type": "..."}`만 그대로 넣고, JWT `Authorization: Bearer ...` 인터셉터가 붙지 않도록 별도 `axios.put(upload.uploadUrl, file, { headers: upload.headers })`로 호출**해야 합니다 (`Authorization` 헤더가 붙거나 `Content-Type`이 다르면 저장소가 `403` 또는 `400`을 반환합니다).
+3. **Cloudflare 무료 터널 업로드 용량 제한 (100MB 이하):**
+   - 공개 HTTPS 터널(Cloudflare)을 경유할 때는 단일 업로드 본문이 최대 **100MB**까지 허용됩니다. 시연·테스트 영상(보통 30초~3분, 수십 MB)은 문제없이 바로 올라갑니다.
+4. **분석 시간 및 폴링 주기:**
+   - 약 45초 분량 영상 기준 실제 AI 분석(음성 추출 → Whisper 받아쓰기 → MediaPipe 시선·자세·제스처 → GPT 내용·피드백 생성)에 **약 45초**가 걸립니다.
+   - N2(`POST /analyses/{analysisId}/start`) 호출 후 N3(`GET /analyses/{analysisId}`)을 **2초 간격으로 폴링**하다가 `status`가 `COMPLETED` 또는 `FAILED`가 되면 폴링을 멈춥니다.
+5. **초기 명세(`v1`) 대비 업데이트된 변경점 9가지 (아래 본문에 모두 반영됨):**
+   - **P1 `timeLimitSec` 범위 명시:** 선택값이며 정수 초 `1~600`(최대 10분). 범위 밖이면 `400 VALIDATION_ERROR`.
+   - **N1·N2 일일 한도 초과 에러(`429 RATE_LIMITED`):** 하루 분석 횟수(20회)가 이미 찼으면 N1에서도 업로드 전에 미리 `429 RATE_LIMITED`를 반환하며, N2에서도 동일하게 검사합니다.
+   - **비언어 지표 측정 불가 시 `null` 반환 (5장):** 어깨·손목이 화면에 안 잡히면 `metrics.nonverbal`의 `gazeFrontRatio`, `postureStability`, `gesturePerMin`이 `0`이 아니라 `null`로 옵니다. 화면에는 `"측정 불가"`로 표시해 주세요.
+   - **비언어 피드백의 `evidence: null` 허용 (5장):** `GAZE_AWAY`, `POSTURE_UNSTABLE`처럼 대본 인용이 없는 비언어 피드백은 `feedbacks[].evidence`가 `null`입니다. `null`이면 카드에서 인용 영역을 숨깁니다.
+   - **`lowConfidenceRanges` 의미 명확화:** 얼굴과 몸이 모두 잡히지 않아 평가에서 제외한 구간(타임라인 회색 구간)입니다.
+   - **`words[].tag`의 `REPEAT` 기준:** 연속 반복된 두 번째 단어부터 `"REPEAT"` 태그가 붙습니다.
+   - **`405 METHOD_NOT_ALLOWED` 에러 코드 추가:** 경로는 맞지만 지원하지 않는 HTTP 메서드로 호출한 경우 `405 METHOD_NOT_ALLOWED`가 반환됩니다.
+   - **N5 영상 재생 URL 만료(`expiresInSec: 3600`):** 1시간 뒤 만료되므로 리포트 화면에 진입할 때마다 N5를 호출해 `<video src>`에 넣습니다.
+   - **CORS 허용 목록:** `http://localhost:5173`, `http://localhost:3000`, `http://127.0.0.1:5173`, `http://127.0.0.1:3000`이 API와 MinIO 양쪽에 모두 허용되어 있습니다. 프론트를 Vercel 등으로 배포하면 해당 도메인을 알려주세요.
 
 ---
 
@@ -12,7 +56,7 @@
 
 **Presento**는 발표 영상을 업로드하거나 웹캠으로 녹화하면, AI가 말 속도·추임새·침묵·시선·자세·내용 구성을 분석해 타임라인 기반 피드백 리포트를 주는 웹 서비스다.
 
-프론트는 이 문서의 화면 기획과 API 명세만 보고 백엔드 완성 전에 목업 데이터로 개발을 시작한다. 백엔드는 FastAPI로 만들고, 실제 서버가 뜨면 `/docs`(Swagger)에서 같은 명세를 직접 호출해볼 수 있다.
+프론트는 이 문서의 화면 기획과 API 명세만 보고 개발을 시작한다. 백엔드는 FastAPI로 만들어져 있으며, `/docs`(Swagger)에서 같은 명세를 직접 호출해볼 수 있다.
 
 ### 역할 분담
 
@@ -25,8 +69,8 @@
 
 | 항목 | 규칙 |
 | --- | --- |
-| Base URL | 로컬 `http://localhost:8000/api/v1`, 배포 후 도메인 공유 예정. 환경변수 `VITE_API_BASE_URL`로 관리 |
-| 프론트 로컬 주소 | `http://localhost:5173` (백엔드 CORS 허용 목록에 등록) |
+| Base URL | 공개 서버 `https://rose-code-korean-teaching.trycloudflare.com/api/v1` (로컬 백엔드 직접 실행 시 `http://localhost:8000/api/v1`). 환경변수 `VITE_API_BASE_URL`로 관리 |
+| 프론트 로컬 주소 | `http://localhost:5173` (백엔드 CORS 허용 목록에 등록됨) |
 | 데이터 형식 | 요청·응답 모두 JSON, 필드명은 camelCase |
 | 인증 | 로그인 응답의 `accessToken`을 `Authorization: Bearer <토큰>` 헤더에 담아 보냄 |
 | 토큰 만료 | 24시간. 401을 받으면 로그인 화면으로 이동 |
@@ -157,7 +201,7 @@ API는 16개이고, 영상 분석의 핵심 흐름은 **"업로드 URL 발급 �
 ```
 
 - `purpose`: `INTERVIEW`(면접), `CLASS`(수업 발표), `PITCH`(피칭·대회), `ETC`. 평가 기준(루브릭)이 이 값에 따라 바뀐다.
-- `timeLimitSec`: 선택. 없으면 시간 초과 평가를 하지 않는다.
+- `timeLimitSec`: 선택. 정수 초, 1~600(영상 최대 길이 10분과 같다). 범위 밖이면 400 `VALIDATION_ERROR`. 없으면 시간 초과 평가를 하지 않는다.
 
 응답 `201`
 
@@ -211,7 +255,7 @@ API는 16개이고, 영상 분석의 핵심 흐름은 **"업로드 URL 발급 �
 응답 `200` — 업로드 방법은 N1과 같다(받은 URL로 PUT). 업로드가 끝나면 다음 분석부터 슬라이드 일치도가 계산된다.
 
 ```json
-{ "uploadUrl": "https://presento-bucket.s3.amazonaws.com/...", "method": "PUT", "headers": { "Content-Type": "application/pdf" }, "expiresInSec": 600 }
+{ "uploadUrl": "https://lows-evaluation-barrel-vegas.trycloudflare.com/presento/slides/...", "method": "PUT", "headers": { "Content-Type": "application/pdf" }, "expiresInSec": 600 }
 ```
 
 ### P7. 성장 기록 `GET /presentations/{presentationId}/history`
@@ -237,6 +281,7 @@ API는 16개이고, 영상 분석의 핵심 흐름은 **"업로드 URL 발급 �
 
 - `contentType`: `video/mp4`, `video/quicktime`(mov), `video/webm` 중 하나. 웹 녹화는 크롬이 webm, 사파리가 mp4로 나온다.
 - `fileSize`: 바이트. 500MB 이하. `source`: `UPLOAD` 또는 `RECORDING`.
+- 하루 분석 횟수가 이미 찼으면 `429 RATE_LIMITED`.
 
 응답 `201`
 
@@ -246,7 +291,7 @@ API는 16개이고, 영상 분석의 핵심 흐름은 **"업로드 URL 발급 �
   "attemptNo": 3,
   "status": "WAITING_UPLOAD",
   "upload": {
-    "uploadUrl": "https://presento-bucket.s3.amazonaws.com/videos/a-9d21?X-Amz-Signature=...",
+    "uploadUrl": "https://lows-evaluation-barrel-vegas.trycloudflare.com/presento/videos/a-9d21?X-Amz-Signature=...",
     "method": "PUT",
     "headers": { "Content-Type": "video/webm" },
     "expiresInSec": 900
@@ -270,6 +315,7 @@ await axios.put(upload.uploadUrl, file, {
 응답 `202 Accepted` `{ "analysisId": "a-9d21", "status": "QUEUED" }`
 
 - 서버가 S3에 파일이 없으면 `409 UPLOAD_NOT_FOUND`, 10분을 넘는 영상이면 `422 VIDEO_TOO_LONG`.
+- 하루 분석 횟수를 넘으면 `429 RATE_LIMITED` (N1에서 이미 찬 경우 미리 알려줌).
 
 ### N3. 분석 상태 `GET /analyses/{analysisId}`
 
@@ -297,7 +343,7 @@ await axios.put(upload.uploadUrl, file, {
 
 ### N5. 영상 재생 URL `GET /analyses/{analysisId}/video-url`
 
-응답 `200` `{ "videoUrl": "https://presento-bucket.s3.amazonaws.com/...", "expiresInSec": 3600 }` — `<video src>`에 넣는다. 1시간 뒤 만료되므로 리포트 화면에 들어올 때마다 새로 받는다.
+응답 `200` `{ "videoUrl": "https://lows-evaluation-barrel-vegas.trycloudflare.com/presento/videos/...", "expiresInSec": 3600 }` — `<video src>`에 넣는다. 1시간 뒤 만료되므로 리포트 화면에 들어올 때마다 새로 받는다.
 
 ### N6. 회차 삭제 `DELETE /analyses/{analysisId}`
 
@@ -415,6 +461,17 @@ await axios.put(upload.uploadUrl, file, {
 }
 ```
 
+**비언어 지표 측정 불가:** 영상에서 어깨·손목이 잘 안 보이면 해당 지표를 잴 수 없다. 이때 `gazeFrontRatio`, `postureStability`, `gesturePerMin`은 `null`로 오고, 화면에는 "측정 불가"로 표시한다(0이나 100%로 그리지 않는다).
+
+```json
+"nonverbal": {
+  "gazeFrontRatio": 0.81,
+  "postureStability": 0.9,
+  "gesturePerMin": null,
+  "lowConfidenceRanges": []
+}
+```
+
 ### 필드별 화면 매핑
 
 | 필드 | 화면에서 쓰는 곳 | 비고 |
@@ -429,7 +486,7 @@ await axios.put(upload.uploadUrl, file, {
 | `feedbacks.severity` | 마커 색 | `INFO` 파랑, `WARNING` 주황, `CRITICAL` 빨강 |
 | `feedbacks.evidence` | 피드백 카드의 근거 인용 | 실제 대본에서 가져온 문장. **evidence: 시선·자세 피드백은 null일 수 있음** (인용할 대본이 없을 때). null이면 인용 영역을 숨긴다 |
 | `transcript.segments` | 대본 탭 | 재생 중인 문장 하이라이트, 문장 클릭 시 그 초로 이동 |
-| `words.tag` | 대본 안 단어 색 | `FILLER` 추임새, `REPEAT` 반복어, `null` 일반 |
+| `words.tag` | 대본 안 단어 색 | `FILLER` 추임새, `REPEAT` 반복어, `null` 일반. REPEAT는 반복된 두 번째 단어부터 붙음 |
 | `improvedScripts` | 개선 스크립트 탭 | 원문/개선문 나란히 보기 |
 | `expectedQuestions` | 예상 질문 탭 | 5개 내외 |
 | `slideCoverage` | 슬라이드 일치도 탭 | PDF를 올린 경우에만 오고, 없으면 `null` |
@@ -485,16 +542,9 @@ await axios.put(upload.uploadUrl, file, {
 
 분석 실패 이유(N3의 `error.code`): `NO_SPEECH_DETECTED`(목소리 없음), `NO_FACE_DETECTED`(얼굴이 거의 안 보임), `CORRUPTED_VIDEO`(재생 불가 파일), `AI_SERVICE_ERROR`(외부 AI 호출 실패, 다시 시도하면 됨).
 
-### 프론트 개발 순서 (백엔드를 기다리지 않는 방법)
+### 프론트 개발 순서 (백엔드 연결)
 
-1. **목업 먼저:** MSW로 이 문서의 예시 JSON을 그대로 응답하게 만든다. 4·5장 예시를 복사해서 `src/mocks/` 폴더에 둔다. 분석 진행은 N3 목업이 호출될 때마다 `progress`가 올라가다 `COMPLETED`가 되게 만든다.
-2. **타입 정의:** 5장 리포트 JSON으로 TypeScript 타입(`Report`, `Feedback`, `Segment` 등)을 먼저 만든다. 백엔드 Swagger가 나오면 `openapi-typescript`로 자동 생성한 타입과 비교한다.
+1. **목업 또는 실제 리포트 샘플 활용:** 함께 전달된 `test1_report.json`은 실제 44.52초 발표 영상을 분석해 나온 리포트 JSON이므로 리포트 화면 UI/타임라인 테스트에 바로 사용할 수 있다.
+2. **타입 정의:** 5장 리포트 JSON으로 TypeScript 타입(`Report`, `Feedback`, `Segment` 등)을 먼저 만든다. Swagger(`https://rose-code-korean-teaching.trycloudflare.com/openapi.json`)에서 `openapi-typescript`로 자동 생성한 타입과 비교할 수 있다.
 3. **화면 순서:** 로그인 → 대시보드 → 발표 만들기 → 영상 입력(파일 업로드 먼저, 녹화는 나중) → 분석 진행 → 리포트.
-4. **리포트 화면이 시연의 핵심**이니 가장 많은 시간을 쓴다. 영상 플레이어와 타임라인 마커, 대본 동기화가 우선이다.
-5. **백엔드 연결:** 목업을 끄고 `VITE_API_BASE_URL`만 바꿔 실제 서버에 붙인다.
-
-### 아직 정해지지 않은 것 (임의로 구현하지 말 것)
-
-- [ ] 배포 도메인과 S3 버킷 CORS에 프론트 배포 주소 추가
-- [ ] 하루 분석 횟수 제한(현재 20회) 확정
-- [ ] 소셜 로그인(카카오 등) 넣을지 여부 — 지금 명세는 이메일 로그인만
+4. **백엔드 연결:** `.env`에 `VITE_API_BASE_URL=https://rose-code-korean-teaching.trycloudflare.com/api/v1`을 설정해 바로 호출한다.
