@@ -87,6 +87,10 @@ export const handlers = [
     return HttpResponse.json({ ...mockReport, analysisId: String(params.id), attemptNo: a?.attemptNo ?? mockReport.attemptNo });
   }),
   // 목업에는 실제 영상이 없어 빈 URL을 준다. 플레이어는 이 경우 내부 시계로 재생을 흉내 낸다.
-  http.get(`${B}/analyses/:id/video-url`, () => HttpResponse.json({ videoUrl: '', expiresInSec: 3600 })),
+  // 서버처럼 업로드 전 회차는 409. a-novideo 는 리포트는 있고 영상만 없는 경우를 화면에서 확인하는 용도.
+  http.get(`${B}/analyses/:id/video-url`, ({ params }) => {
+    if (analyses.get(String(params.id))?.status === 'WAITING_UPLOAD' || params.id === 'a-novideo') return err(409, 'UPLOAD_NOT_FOUND', '아직 업로드된 영상이 없어요.');
+    return HttpResponse.json({ videoUrl: '', expiresInSec: 3600 });
+  }),
   http.delete(`${B}/analyses/:id`, () => new HttpResponse(null, { status: 204 })),
 ];
