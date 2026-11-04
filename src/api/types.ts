@@ -24,7 +24,7 @@ export interface Attempt {
   analysisId: string; attemptNo: number; status: AnalysisStatus; overallScore: number | null;
   durationSec: number | null; createdAt: string;
 }
-export interface PresentationDetail extends Omit<Presentation, 'attemptCount' | 'latestScore' | 'createdAt'> {
+export interface PresentationDetail extends Presentation {
   attempts: Attempt[];
 }
 
@@ -37,6 +37,8 @@ export interface HistoryItem {
 
 export interface CreateAnalysisRequest { fileName: string; contentType: string; fileSize: number; source: 'UPLOAD' | 'RECORDING' }
 export interface CreateAnalysisResponse { analysisId: string; attemptNo: number; status: AnalysisStatus; upload: UploadTicket }
+// 이미 시작한 회차에 다시 부르면 QUEUED 가 아니라 현재 상태가 온다.
+export interface StartAnalysisResponse { analysisId: string; status: AnalysisStatus }
 
 export interface AnalysisState {
   analysisId: string; presentationId: string; attemptNo: number; status: AnalysisStatus; stage: AnalysisStage | null;
@@ -45,7 +47,8 @@ export interface AnalysisState {
 
 export interface Feedback {
   id: string; category: Category; type: FeedbackType; severity: Severity; start: number; end: number;
-  title: string; description: string; evidence: string; suggestion: string;
+  // 시선·자세 피드백은 인용할 대본이 없어 null 일 수 있다. null 이면 근거 문장 영역을 숨긴다.
+  title: string; description: string; evidence: string | null; suggestion: string;
 }
 export interface Word { text: string; start: number; end: number; tag: 'FILLER' | 'REPEAT' | null }
 export interface Segment { id: string; start: number; end: number; text: string; words: Word[] }
@@ -63,7 +66,8 @@ export interface Report {
       fillers: { word: string; count: number }[]; silenceCount: number; longestSilenceSec: number;
       timeLimitSec: number | null; overTimeSec: number;
     };
-    nonverbal: { gazeFrontRatio: number; postureStability: number; gesturePerMin: number; lowConfidenceRanges: { start: number; end: number }[] };
+    // 카메라에 몸이 안 잡혀 측정하지 못한 지표는 null
+    nonverbal: { gazeFrontRatio: number | null; postureStability: number | null; gesturePerMin: number | null; lowConfidenceRanges: { start: number; end: number }[] };
   };
   feedbacks: Feedback[];
   transcript: { segments: Segment[] };

@@ -1,25 +1,27 @@
 // 명세 4·5장 예시 JSON을 바탕으로 한 목업 데이터. 필드는 명세 그대로이고, 배열 항목만 시연용으로 늘렸다.
-import type { Feedback, HistoryItem, Presentation, PresentationDetail, Report, Segment, User, Word } from '@/api/types';
+import type { Attempt, Feedback, HistoryItem, Presentation, PresentationDetail, Report, Segment, User, Word } from '@/api/types';
 
 export const mockUser: User = { id: 'u-1a2b', email: 'student@ycu.ac.kr', nickname: '영훈', createdAt: '2026-11-03T17:04:00+09:00' };
 
 export const mockPresentations: Presentation[] = [
   { id: 'p-7f3c', title: '캡스톤 중간 발표', purpose: 'CLASS', timeLimitSec: 300, hasSlides: true, attemptCount: 3, latestScore: 82, createdAt: '2026-11-03T17:10:00+09:00' },
-  { id: 'p-2b81', title: '카카오 인턴 1차 면접', purpose: 'INTERVIEW', timeLimitSec: 180, hasSlides: false, attemptCount: 5, latestScore: 71, createdAt: '2026-11-01T19:00:00+09:00' },
-  { id: 'p-c40a', title: 'AI 경진대회 본선 피칭', purpose: 'PITCH', timeLimitSec: 420, hasSlides: true, attemptCount: 2, latestScore: 66, createdAt: '2026-10-30T13:00:00+09:00' },
+  { id: 'p-2b81', title: '카카오 인턴 1차 면접', purpose: 'INTERVIEW', timeLimitSec: 180, hasSlides: false, attemptCount: 0, latestScore: null, createdAt: '2026-11-01T19:00:00+09:00' },
+  { id: 'p-c40a', title: 'AI 경진대회 본선 피칭', purpose: 'PITCH', timeLimitSec: 420, hasSlides: true, attemptCount: 0, latestScore: null, createdAt: '2026-10-30T13:00:00+09:00' },
   { id: 'p-9e17', title: '동아리 신입 OT 소개', purpose: 'ETC', timeLimitSec: null, hasSlides: false, attemptCount: 0, latestScore: null, createdAt: '2026-10-28T10:00:00+09:00' },
 ];
 
-export const mockDetail = (p: Presentation): PresentationDetail => ({
-  id: p.id, title: p.title, purpose: p.purpose, timeLimitSec: p.timeLimitSec, hasSlides: p.hasSlides,
-  attempts: p.id === 'p-7f3c'
+export const mockDetail = (p: Presentation): PresentationDetail => {
+  const attempts: Attempt[] = p.id === 'p-7f3c'
     ? [
         { analysisId: 'a-9d21', attemptNo: 3, status: 'COMPLETED', overallScore: 82, durationSec: 287.4, createdAt: '2026-11-05T20:00:00+09:00' },
         { analysisId: 'a-55e0', attemptNo: 2, status: 'FAILED', overallScore: null, durationSec: null, createdAt: '2026-11-04T21:30:00+09:00' },
         { analysisId: 'a-1c4f', attemptNo: 1, status: 'COMPLETED', overallScore: 64, durationSec: 312.0, createdAt: '2026-11-03T21:00:00+09:00' },
       ]
-    : [],
-});
+    : [];
+  // 서버처럼 회차 수와 최근 점수는 attempts 에서 계산한다.
+  const latest = attempts.find((a) => a.status === 'COMPLETED');
+  return { ...p, attemptCount: attempts.length, latestScore: latest?.overallScore ?? null, attempts };
+};
 
 export const mockHistory: HistoryItem[] = [
   { attemptNo: 1, analysisId: 'a-1c4f', createdAt: '2026-11-03T21:00:00+09:00', overallScore: 64, scores: { DELIVERY: 58, NONVERBAL: 70, CONTENT: 65 }, fillerCount: 31, syllablesPerMin: 392 },
@@ -47,7 +49,7 @@ const feedbacks: Feedback[] = [
   { id: 'f-03', category: 'DELIVERY', type: 'LONG_SILENCE', severity: 'INFO', start: 161.0, end: 164.8, title: '3.8초 침묵',
     description: '5번에서 6번 슬라이드로 넘어가는 동안 말이 멈췄어요.', evidence: '(침묵)', suggestion: "'다음으로 ~를 보겠습니다'처럼 넘어가는 말을 미리 정해 두세요." },
   { id: 'f-04', category: 'NONVERBAL', type: 'GAZE_AWAY', severity: 'INFO', start: 190.0, end: 204.0, title: '화면 밖을 봤어요',
-    description: '14초 동안 정면 시선 비율이 41%로 떨어졌어요. 메모를 읽은 것으로 보여요.', evidence: '저희 팀은 사용자 인터뷰를 열두 번 했고', suggestion: '핵심 문장은 외워서 카메라를 보며 말해 보세요.' },
+    description: '14초 동안 정면 시선 비율이 41%로 떨어졌어요. 메모를 읽은 것으로 보여요.', evidence: null, suggestion: '핵심 문장은 외워서 카메라를 보며 말해 보세요.' },
   { id: 'f-05', category: 'CONTENT', type: 'SLIDE_MISSED', severity: 'CRITICAL', start: 232.0, end: 245.0, title: '4번 슬라이드를 설명 없이 넘겼어요',
     description: "'경쟁 서비스 비교' 슬라이드를 설명하지 않았어요. 차별점의 근거라서 질문이 나오기 쉬워요.", evidence: '다음으로 넘어가서 수익 모델을 보면', suggestion: '기존 서비스와 다른 점 두 가지를 30초 안에 말해 보세요.' },
 ];
@@ -113,7 +115,9 @@ export const mockReportAttempt1: Report = {
   ...mockReport, analysisId: 'a-1c4f', attemptNo: 1, durationSec: 312.0, createdAt: '2026-11-03T21:00:00+09:00',
   overall: { ...mockReport.overall, score: 64, grade: 'C+', summary: '내용은 준비됐지만 말 속도가 빠르고 추임새가 많아 핵심이 묻혀요.' },
   scores: [{ category: 'DELIVERY', label: '전달력', score: 58 }, { category: 'NONVERBAL', label: '비언어', score: 70 }, { category: 'CONTENT', label: '내용 구성', score: 65 }],
-  metrics: { ...mockReport.metrics, speech: { ...mockReport.metrics.speech, syllablesPerMin: 392, fillerCount: 31, fillers: [{ word: '약간', count: 9 }, { word: '이제', count: 12 }, { word: '음', count: 10 }] } },
+  metrics: { ...mockReport.metrics, speech: { ...mockReport.metrics.speech, syllablesPerMin: 392, fillerCount: 31, fillers: [{ word: '약간', count: 9 }, { word: '이제', count: 12 }, { word: '음', count: 10 }] },
+    // 1회차는 카메라에 상반신이 안 잡혀 자세·제스처를 측정하지 못한 경우를 시연
+    nonverbal: { ...mockReport.metrics.nonverbal, postureStability: null, gesturePerMin: null } },
   feedbacks: [
     { ...feedbacks[0], id: 'f-11', start: 0, end: 44, description: '첫 44초가 분당 415음절로 빨라요.' },
     { ...feedbacks[1], id: 'f-12', start: 58, end: 92 },

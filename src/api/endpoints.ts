@@ -1,7 +1,7 @@
 import { api } from './client';
 import type {
   AnalysisState, AuthResponse, CreateAnalysisRequest, CreateAnalysisResponse, HistoryItem, Paged, Presentation,
-  PresentationDetail, Purpose, Report, UploadTicket, User,
+  PresentationDetail, Purpose, Report, StartAnalysisResponse, UploadTicket, User,
 } from './types';
 
 // A1 ~ N6 (명세 3장)
@@ -24,7 +24,7 @@ export const getHistory = (id: string) => api.get<{ items: HistoryItem[] }>(`/pr
 export const createAnalysis = (presentationId: string, body: CreateAnalysisRequest) =>
   api.post<CreateAnalysisResponse>(`/presentations/${presentationId}/analyses`, body).then((r) => r.data);
 export const startAnalysis = (analysisId: string) =>
-  api.post<{ analysisId: string; status: 'QUEUED' }>(`/analyses/${analysisId}/start`).then((r) => r.data);
+  api.post<StartAnalysisResponse>(`/analyses/${analysisId}/start`).then((r) => r.data);
 export const getAnalysis = (analysisId: string) => api.get<AnalysisState>(`/analyses/${analysisId}`).then((r) => r.data);
 export const getReport = (analysisId: string) => api.get<Report>(`/analyses/${analysisId}/report`).then((r) => r.data);
 export const getVideoUrl = (analysisId: string) =>

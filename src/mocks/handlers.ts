@@ -9,6 +9,8 @@ const authed = (req: Request) => (req.headers.get('Authorization') ?? '').starts
 const presentations: Presentation[] = [...mockPresentations];
 // 명세 6장: N3 목업은 호출될 때마다 progress 가 올라가다 COMPLETED 가 된다.
 const analyses = new Map<string, AnalysisState>();
+// 업로드 URL로 PUT이 끝난 영상 키(videos/<analysisId>). 서버처럼 N2에서 업로드 여부를 본다.
+const uploadedVideos = new Set<string>();
 const STAGE_AT = (p: number) => (p < 10 ? 'EXTRACTING_AUDIO' : p < 40 ? 'TRANSCRIBING' : p < 65 ? 'ANALYZING_NONVERBAL' : p < 80 ? 'ANALYZING_CONTENT' : 'GENERATING_FEEDBACK') as AnalysisState['stage'];
 
 export const handlers = [
@@ -62,10 +64,19 @@ export const handlers = [
     analyses.set(id, { analysisId: id, presentationId: String(params.id), attemptNo: 4, status: 'WAITING_UPLOAD', stage: null, progress: 0, error: null, createdAt: new Date().toISOString(), completedAt: null });
     return HttpResponse.json({ analysisId: id, attemptNo: 4, status: 'WAITING_UPLOAD', upload: { uploadUrl: `https://presento-bucket.s3.amazonaws.com/videos/${id}`, method: 'PUT', headers: { 'Content-Type': body.contentType }, expiresInSec: 900 } }, { status: 201 });
   }),
-  http.put('https://presento-bucket.s3.amazonaws.com/*', async () => { await delay(600); return new HttpResponse(null, { status: 200 }); }),
+  http.put('https://presento-bucket.s3.amazonaws.com/*', async ({ request }) => {
+    await delay(600);
+    const m = new URL(request.url).pathname.match(/^\/videos\/([^/]+)$/); if (m) uploadedVideos.add(m[1]);
+    return new HttpResponse(null, { status: 200 });
+  }),
   http.post(`${B}/analyses/:id/start`, ({ params }) => {
-    const a = analyses.get(String(params.id)); if (!a) return err(409, 'UPLOAD_NOT_FOUND', '업로드된 영상을 찾지 못했어요.');
-    a.status = 'QUEUED'; return HttpResponse.json({ analysisId: a.analysisId, status: 'QUEUED' }, { status: 202 });
+    const a = analyses.get(String(params.id)); if (!a) return err(404, 'NOT_FOUND', '분석 회차를 찾을 수 없어요.');
+    // 서버처럼 이미 시작한 회차는 되돌리지 않고 현재 상태만 알려준다.
+    if (a.status === 'WAITING_UPLOAD') {
+      if (!uploadedVideos.has(a.analysisId)) return err(409, 'UPLOAD_NOT_FOUND', '영상 업로드가 아직 끝나지 않았어요. 업로드를 마친 뒤 다시 시도해 주세요.');
+      a.status = 'QUEUED';
+    }
+    return HttpResponse.json({ analysisId: a.analysisId, status: a.status }, { status: 202 });
   }),
   http.get(`${B}/analyses/:id`, ({ params }) => {
     const id = String(params.id);
@@ -85,6 +96,10 @@ export const handlers = [
     return HttpResponse.json({ ...mockReport, analysisId: String(params.id), attemptNo: a?.attemptNo ?? mockReport.attemptNo });
   }),
   // 목업에는 실제 영상이 없어 빈 URL을 준다. 플레이어는 이 경우 내부 시계로 재생을 흉내 낸다.
-  http.get(`${B}/analyses/:id/video-url`, () => HttpResponse.json({ videoUrl: '', expiresInSec: 3600 })),
+  // 서버처럼 업로드 전 회차는 409. a-novideo 는 리포트는 있고 영상만 없는 경우를 화면에서 확인하는 용도.
+  http.get(`${B}/analyses/:id/video-url`, ({ params }) => {
+    if (analyses.get(String(params.id))?.status === 'WAITING_UPLOAD' || params.id === 'a-novideo') return err(409, 'UPLOAD_NOT_FOUND', '아직 업로드된 영상이 없어요.');
+    return HttpResponse.json({ videoUrl: '', expiresInSec: 3600 });
+  }),
   http.delete(`${B}/analyses/:id`, () => new HttpResponse(null, { status: 204 })),
 ];

@@ -24,12 +24,24 @@ export function ReportPage() {
   const p = useQuery({ queryKey: ['presentation', r.data?.presentationId], queryFn: () => getPresentation(r.data!.presentationId), enabled: !!r.data });
   if (r.isPending) return <main className="page"><Loading label="리포트를 불러오는 중" /></main>;
   if (r.isError) return <main className="page"><ErrorState message={errorMessage(r.error)} onRetry={() => r.refetch()} /></main>;
-  return <ReportView report={r.data} videoUrl={v.data?.videoUrl} title={p.data?.title} nextNo={(p.data?.attempts[0]?.attemptNo ?? r.data.attemptNo) + 1} />;
+  return <ReportView report={r.data} videoUrl={v.data?.videoUrl} videoError={v.isError ? errorMessage(v.error, '영상을 불러오지 못했어요.') : undefined}
+    reloadVideo={() => v.refetch()} videoReloading={v.isFetching}
+    title={p.data?.title} nextNo={(p.data?.attempts[0]?.attemptNo ?? r.data.attemptNo) + 1} />;
 }
 
-function ReportView({ report, videoUrl, title, nextNo }: { report: Report; videoUrl?: string; title?: string; nextNo: number }) {
+function ReportView({ report, videoUrl, videoError, reloadVideo, videoReloading, title, nextNo }: {
+  report: Report; videoUrl?: string; videoError?: string; reloadVideo: () => void; videoReloading: boolean; title?: string; nextNo: number;
+}) {
   const [params] = useSearchParams();
   const pb = usePlayback(report.durationSec, videoUrl || undefined);
+  // 재생 URL은 1시간 뒤 만료된다. 영상을 못 불러오면 URL(N5)을 새로 받아 다시 시도하고,
+  // 1분 안에 또 실패하면(코덱 문제 등) 다시 받지 않고 안내한다.
+  const [videoReloadedAt, setVideoReloadedAt] = useState(0);
+  useEffect(() => {
+    if (!pb.failed || Date.now() - videoReloadedAt < 60_000) return;
+    setVideoReloadedAt(Date.now()); reloadVideo();
+  }, [pb.failed]); // eslint-disable-line react-hooks/exhaustive-deps
+  const videoFailed = pb.failed && !videoReloading && videoReloadedAt > 0;
   const clips = useMemo(() => [...report.feedbacks].sort((a, b) => a.start - b.start), [report.feedbacks]);
   const [selected, setSelected] = useState<string | null>(clips[0]?.id ?? null);
   const [clipOnly, setClipOnly] = useState(false);
@@ -82,7 +94,7 @@ function ReportView({ report, videoUrl, title, nextNo }: { report: Report; video
                 {clips.map((f, i) => (
                   <li key={f.id}>
                     <button className={`clip${f.id === selected ? ' on' : ''}`} onClick={() => go(f)} aria-current={f.id === selected || undefined}>
-                      <span className="clip-frame" aria-hidden="true"><span className="t-data">{shortDuration(f.end - f.start)}</span><span className="clip-cap">{f.evidence}</span></span>
+                      <span className="clip-frame" aria-hidden="true"><span className="t-data">{shortDuration(f.end - f.start)}</span>{f.evidence !== null && <span className="clip-cap">{f.evidence}</span>}</span>
                       <span className="stack" style={{ gap: 3, textAlign: 'left' }}>
                         <span className="row" style={{ gap: 8, alignItems: 'baseline' }}><span className="t-caption">클립 {i + 1}</span><span className="t-data c-ev">{clock(f.start)}</span></span>
                         <span className="t-title">{f.title}</span>
@@ -134,6 +146,7 @@ function ReportView({ report, videoUrl, title, nextNo }: { report: Report; video
         <aside className="report-side stack" style={{ gap: 'var(--s-4)' }} aria-label="영상">
           <div className="player">
             {videoUrl ? <video {...pb.bind} src={videoUrl} playsInline preload="metadata" /> : null}
+            {(videoError || videoFailed) && <p className="player-msg t-small" role="alert">{videoError ?? '영상을 재생하지 못했어요.'}</p>}
             <div className="player-cap" aria-live="off">{segNow ? <p>{words(segNow, true)}</p> : null}</div>
             {selIdx >= 0 && <span className="player-badge t-caption"><span className="t-data">클립 {selIdx + 1} / {clips.length}</span> {clips[selIdx].title}</span>}
           </div>
@@ -154,9 +167,9 @@ function ReportView({ report, videoUrl, title, nextNo }: { report: Report; video
             <Row k="말 속도" v={`${sp.syllablesPerMin} 음절/분`} note={sp.paceSeries[0] ? `도입 30초 ${sp.paceSeries[0].value}` : undefined} />
             <Row k="추임새" v={`${sp.fillerCount}회`} note={sp.fillers.map((f) => `${f.word} ${f.count}`).join(', ')} />
             <Row k="침묵" v={`${sp.silenceCount}회`} note={`가장 길게 ${sp.longestSilenceSec}초`} />
-            <Row k="정면 시선" v={`${Math.round(nv.gazeFrontRatio * 100)}%`} />
-            <Row k="자세 안정도" v={`${Math.round(nv.postureStability * 100)}%`} />
-            <Row k="제스처" v={`${nv.gesturePerMin}회/분`} />
+            <Row k="정면 시선" v={nv.gazeFrontRatio === null ? null : `${Math.round(nv.gazeFrontRatio * 100)}%`} />
+            <Row k="자세 안정도" v={nv.postureStability === null ? null : `${Math.round(nv.postureStability * 100)}%`} />
+            <Row k="제스처" v={nv.gesturePerMin === null ? null : `${nv.gesturePerMin}회/분`} />
             <Row k="발표 시간" v={shortDuration(report.durationSec)} note={sp.timeLimitSec ? `제한 ${shortDuration(sp.timeLimitSec)}${sp.overTimeSec ? `, ${sp.overTimeSec}초 초과` : ''}` : undefined} />
           </dl>
         </section>
@@ -211,4 +224,5 @@ function Slides({ report, onSeek }: { report: Report; onSeek: (t: number) => voi
 }
 
 const Block = ({ title, children }: { title: string; children: ReactNode }) => <div className="stack" style={{ gap: 6 }}><p className="t-body-strong">{title}</p>{children}</div>;
-const Row = ({ k, v, note }: { k: string; v: string; note?: string }) => (<div className="mrow"><dt className="t-small c-2">{k}</dt><dd className="t-data" style={{ fontWeight: 700 }}>{v}</dd>{note ? <dd className="t-caption c-3">{note}</dd> : <dd />}</div>);
+// v가 null이면 측정하지 못한 지표(예: 카메라에 몸이 안 잡힘) — 숫자 대신 '측정 불가'
+const Row = ({ k, v, note }: { k: string; v: string | null; note?: string }) => (<div className="mrow"><dt className="t-small c-2">{k}</dt>{v === null ? <dd className="t-small c-3">측정 불가</dd> : <dd className="t-data" style={{ fontWeight: 700 }}>{v}</dd>}{note ? <dd className="t-caption c-3">{note}</dd> : <dd />}</div>);
