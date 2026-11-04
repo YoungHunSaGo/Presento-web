@@ -15,7 +15,15 @@
 .auth-form .btn { min-height: 54px; }
 
 /* dashboard */
-.ptable { width: 100%; border-collapse: collapse; }
+.ptable { width: 100%; border-collapse: collapse; table-layout: fixed; }
+/* 제목 길이에 따라 열 간격이 바뀌지 않게 열 너비를 고정한다. 발표 열이 남는 폭을 모두 쓰고,
+   긴 제목은 그 안에서 줄을 바꾼다. (좁은 화면에서 숨기는 목적·날짜 열도 nth-child 로 잡아 그대로 맞는다) */
+.ptable th:nth-child(1) { padding-right: 24px; }
+.ptable th:nth-child(2) { width: 150px; }
+.ptable th:nth-child(3) { width: 96px; }
+.ptable th:nth-child(4) { width: 120px; }
+.ptable th:nth-child(5) { width: 120px; }
+.ptable td:first-child { padding-right: 24px; }
 .ptable th { text-align: left; font-size: 13px; font-weight: 500; color: var(--text-3); padding: 8px 0; border-bottom: 1px solid var(--line-2); }
 .ptable td { padding: 18px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
 /* 목적·연습·점수·날짜는 같은 글꼴로 맞춘다. 숫자는 자릿수 폭을 고정. */
@@ -23,7 +31,7 @@
 /* td 자체를 grid 로 만들면 표 셀의 세로 가운데 정렬이 깨져서 안쪽 div 에 준다. */
 .ptable-name { display: grid; gap: 2px; }
 .ptable .r { text-align: right; padding-left: 24px; }
-.ptable-title { font-size: 18px; line-height: 26px; font-weight: 700; color: var(--text); text-decoration: none; }
+.ptable-title { font-size: 18px; line-height: 26px; font-weight: 700; color: var(--text); text-decoration: none; overflow-wrap: anywhere; }
 .ptable-title:hover { text-decoration: underline; text-underline-offset: 3px; }
 .first-visit { width: 100%; max-width: 860px; }
 .inline-create { gap: 12px; align-items: flex-end; }
@@ -136,6 +144,9 @@
   .auth-form { order: -1; }
   .auth-demo { width: 100%; }
   .ptable th:nth-child(2), .ptable td:nth-child(2), .ptable th:nth-child(5), .ptable td:nth-child(5) { display: none; }
+  /* 좁은 화면: 숫자 열을 줄여 발표 열에 폭을 더 준다. */
+  .ptable th:nth-child(3) { width: 64px; }
+  .ptable th:nth-child(4) { width: 88px; }
   .inline-create { flex-direction: column; align-items: stretch; }
   .inline-create .field:nth-child(2) { width: auto; }
   .script-compare, .two { grid-template-columns: 1fr; }
