@@ -82,7 +82,7 @@ function ReportView({ report, videoUrl, title, nextNo }: { report: Report; video
                 {clips.map((f, i) => (
                   <li key={f.id}>
                     <button className={`clip${f.id === selected ? ' on' : ''}`} onClick={() => go(f)} aria-current={f.id === selected || undefined}>
-                      <span className="clip-frame" aria-hidden="true"><span className="t-data">{shortDuration(f.end - f.start)}</span><span className="clip-cap">{f.evidence}</span></span>
+                      <span className="clip-frame" aria-hidden="true"><span className="t-data">{shortDuration(f.end - f.start)}</span>{f.evidence !== null && <span className="clip-cap">{f.evidence}</span>}</span>
                       <span className="stack" style={{ gap: 3, textAlign: 'left' }}>
                         <span className="row" style={{ gap: 8, alignItems: 'baseline' }}><span className="t-caption">클립 {i + 1}</span><span className="t-data c-ev">{clock(f.start)}</span></span>
                         <span className="t-title">{f.title}</span>

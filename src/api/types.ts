@@ -45,7 +45,8 @@ export interface AnalysisState {
 
 export interface Feedback {
   id: string; category: Category; type: FeedbackType; severity: Severity; start: number; end: number;
-  title: string; description: string; evidence: string; suggestion: string;
+  // 시선·자세 피드백은 인용할 대본이 없어 null 일 수 있다. null 이면 근거 문장 영역을 숨긴다.
+  title: string; description: string; evidence: string | null; suggestion: string;
 }
 export interface Word { text: string; start: number; end: number; tag: 'FILLER' | 'REPEAT' | null }
 export interface Segment { id: string; start: number; end: number; text: string; words: Word[] }

@@ -10,7 +10,7 @@ import type { Feedback } from '@/api/types';
 
 // 소개용 예시(가상 데이터). 화면 문구로는 노출하지 않는다.
 const DEMO: Feedback[] = [[0, 31], [95, 108], [161, 165], [190, 204], [232, 245]].map(([s, e], i) => ({
-  id: `demo-${i}`, category: 'DELIVERY', type: 'FILLER', severity: 'WARNING', start: s, end: e, title: '', description: '', evidence: '', suggestion: '',
+  id: `demo-${i}`, category: 'DELIVERY', type: 'FILLER', severity: 'WARNING', start: s, end: e, title: '', description: '', evidence: null, suggestion: '',
 }));
 
 export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {

@@ -47,7 +47,7 @@ const feedbacks: Feedback[] = [
   { id: 'f-03', category: 'DELIVERY', type: 'LONG_SILENCE', severity: 'INFO', start: 161.0, end: 164.8, title: '3.8초 침묵',
     description: '5번에서 6번 슬라이드로 넘어가는 동안 말이 멈췄어요.', evidence: '(침묵)', suggestion: "'다음으로 ~를 보겠습니다'처럼 넘어가는 말을 미리 정해 두세요." },
   { id: 'f-04', category: 'NONVERBAL', type: 'GAZE_AWAY', severity: 'INFO', start: 190.0, end: 204.0, title: '화면 밖을 봤어요',
-    description: '14초 동안 정면 시선 비율이 41%로 떨어졌어요. 메모를 읽은 것으로 보여요.', evidence: '저희 팀은 사용자 인터뷰를 열두 번 했고', suggestion: '핵심 문장은 외워서 카메라를 보며 말해 보세요.' },
+    description: '14초 동안 정면 시선 비율이 41%로 떨어졌어요. 메모를 읽은 것으로 보여요.', evidence: null, suggestion: '핵심 문장은 외워서 카메라를 보며 말해 보세요.' },
   { id: 'f-05', category: 'CONTENT', type: 'SLIDE_MISSED', severity: 'CRITICAL', start: 232.0, end: 245.0, title: '4번 슬라이드를 설명 없이 넘겼어요',
     description: "'경쟁 서비스 비교' 슬라이드를 설명하지 않았어요. 차별점의 근거라서 질문이 나오기 쉬워요.", evidence: '다음으로 넘어가서 수익 모델을 보면', suggestion: '기존 서비스와 다른 점 두 가지를 30초 안에 말해 보세요.' },
 ];
