@@ -48,7 +48,7 @@ export function NewPresentationPage() {
         </fieldset>
         <div className="stack" style={{ gap: 6 }}>
           <label className="field" style={{ maxWidth: 200 }}><span>제한 시간 (분, 선택)</span>
-            <input className="input" inputMode="decimal" value={minutes} onChange={(e) => setMinutes(e.target.value.replace(/[^\d.]/g, ''))} placeholder="5" aria-invalid={limitErr || undefined} /></label>
+            <input className="input" inputMode="decimal" value={minutes} onChange={(e) => setMinutes(e.target.value.replace(/,/g, '.').replace(/[^\d.]/g, ''))} placeholder="5" aria-invalid={limitErr || undefined} /></label>
           <p className={`field-msg${limitErr ? ' err' : ''}`}>{limitMsg ?? '비워 두면 시간 초과를 평가하지 않습니다.'}</p>
         </div>
         <div className="stack" style={{ gap: 8 }}>
