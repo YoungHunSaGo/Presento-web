@@ -5,8 +5,8 @@ export const mockUser: User = { id: 'u-1a2b', email: 'student@ycu.ac.kr', nickna
 
 export const mockPresentations: Presentation[] = [
   { id: 'p-7f3c', title: '캡스톤 중간 발표', purpose: 'CLASS', timeLimitSec: 300, hasSlides: true, attemptCount: 3, latestScore: 82, createdAt: '2026-11-03T17:10:00+09:00' },
-  { id: 'p-2b81', title: '카카오 인턴 1차 면접', purpose: 'INTERVIEW', timeLimitSec: 180, hasSlides: false, attemptCount: 5, latestScore: 71, createdAt: '2026-11-01T19:00:00+09:00' },
-  { id: 'p-c40a', title: 'AI 경진대회 본선 피칭', purpose: 'PITCH', timeLimitSec: 420, hasSlides: true, attemptCount: 2, latestScore: 66, createdAt: '2026-10-30T13:00:00+09:00' },
+  { id: 'p-2b81', title: '카카오 인턴 1차 면접', purpose: 'INTERVIEW', timeLimitSec: 180, hasSlides: false, attemptCount: 0, latestScore: null, createdAt: '2026-11-01T19:00:00+09:00' },
+  { id: 'p-c40a', title: 'AI 경진대회 본선 피칭', purpose: 'PITCH', timeLimitSec: 420, hasSlides: true, attemptCount: 0, latestScore: null, createdAt: '2026-10-30T13:00:00+09:00' },
   { id: 'p-9e17', title: '동아리 신입 OT 소개', purpose: 'ETC', timeLimitSec: null, hasSlides: false, attemptCount: 0, latestScore: null, createdAt: '2026-10-28T10:00:00+09:00' },
 ];
 
