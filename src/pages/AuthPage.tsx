@@ -25,7 +25,9 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
   // 서버는 글자(코드 포인트) 수로 센다. password.length 는 이모지를 2로 세므로 펼쳐서 센다.
   const pwLen = [...password].length;
   const pwBad = isSignup && pwLen > 0 && (pwLen < 8 || pwLen > 128);
-  const submit = (e: FormEvent) => { e.preventDefault(); if (!pwBad) m.mutate(); };
+  // 서버는 닉네임 앞뒤 공백을 지운 뒤 1자 이상인지 본다.
+  const nicknameBad = !nickname.trim();
+  const submit = (e: FormEvent) => { e.preventDefault(); if (!pwBad && !(isSignup && nicknameBad)) m.mutate(); };
   return (
     <div className="auth">
       <div className="auth-logo"><Logo size={28} /></div>
@@ -57,7 +59,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
               aria-invalid={m.isError || pwBad || undefined} /></label>
           {isSignup && <p className={`field-msg${pwBad ? ' err' : ''}`}>비밀번호는 8자 이상, 128자 이하</p>}
           {m.isError && <p className="field-msg err" role="alert">{errorMessage(m.error)}</p>}
-          <button className="btn btn-primary btn-block" disabled={m.isPending || !email || !password || (isSignup && (!nickname || pwBad))}>
+          <button className="btn btn-primary btn-block" disabled={m.isPending || !email || !password || (isSignup && (nicknameBad || pwBad))}>
             {isSignup ? '가입하고 시작하기' : '로그인'}
           </button>
           <p className="t-small c-2">
