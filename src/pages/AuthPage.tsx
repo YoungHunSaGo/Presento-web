@@ -49,8 +49,10 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           <h2 className="t-h1">{isSignup ? '회원가입' : '로그인'}</h2>
           {isSignup && (
             <label className="field"><span>닉네임</span>
-              <input className="input" value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="nickname" maxLength={50} required /></label>
+              <input className="input" value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="nickname" maxLength={50} required
+                aria-invalid={(nickname.length > 0 && nicknameBad) || undefined} /></label>
           )}
+          {isSignup && nickname.length > 0 && nicknameBad && <p className="field-msg err">닉네임은 공백만으로 정할 수 없어요.</p>}
           <label className="field"><span>이메일</span>
             <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required placeholder="name@school.ac.kr"
               aria-invalid={m.isError || undefined} /></label>
