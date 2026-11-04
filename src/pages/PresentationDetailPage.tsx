@@ -107,9 +107,7 @@ function AttemptRow({ a, report, presentationId, onDelete }: { a: Attempt; repor
       {a.status === 'COMPLETED' && (
         <>
           <Link to={`/analyses/${a.analysisId}`} className="attempt-track" aria-label={`${a.attemptNo}회차 리포트 열기`}>
-            {report ? <EvidenceTrack compact ticks={false} duration={report.durationSec} feedbacks={report.feedbacks} /> : <span className="t-caption c-3">리포트 불러오는 중</span>}
-            {report && <span className="t-caption c-3">클립 {report.feedbacks.length}개</span>}
-          </Link>
+            {report ? <EvidenceTrack compact ticks={false} duration={report.durationSec} feedbacks={report.feedbacks} /> : <span className="t-caption c-3">리포트 불러오는 중</span>}          </Link>
           <span className="t-data-strong">{a.overallScore}</span>
         </>
       )}
