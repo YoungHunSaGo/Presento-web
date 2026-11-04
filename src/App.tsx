@@ -18,8 +18,9 @@ function GuestOnly({ children }: { children: JSX.Element }) { const { isAuthed }
 export default function App() {
   return (
     <Routes>
-      <Route path="/login" element={<GuestOnly><AuthPage mode="login" /></GuestOnly>} />
-      <Route path="/signup" element={<GuestOnly><AuthPage mode="signup" /></GuestOnly>} />
+      {/* 두 경로가 같은 자리에 같은 컴포넌트를 그리므로 key 로 나눠, 오가면 에러 문구·입력값이 새로 시작되게 한다. */}
+      <Route path="/login" element={<GuestOnly><AuthPage key="login" mode="login" /></GuestOnly>} />
+      <Route path="/signup" element={<GuestOnly><AuthPage key="signup" mode="signup" /></GuestOnly>} />
       <Route element={<RequireAuth />}>
         <Route element={<AppLayout />}>
           <Route path="/" element={<DashboardPage />} />
