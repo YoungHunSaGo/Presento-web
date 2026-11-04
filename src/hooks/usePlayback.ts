@@ -24,9 +24,10 @@ export function usePlayback(duration: number, src: string | undefined) {
   const onTimeUpdate = useCallback(() => { if (videoRef.current) setTime(videoRef.current.currentTime); }, []);
   // play() 거부는 자동재생 정책·중단(AbortError) 같은 일시적 이유라 가상 시계로 바꾸지 않는다.
   // 영상 자체를 못 불러오면 video 의 error 이벤트(onError)가 따로 온다.
+  // 거부되면 이유와 관계없이 영상이 실제로 재생 중인지에 맞춘다(중단돼 멈춘 채 playing 이 남지 않게).
   const play = useCallback(() => {
     setPlaying(true);
-    if (!virtual) videoRef.current?.play().catch((e: DOMException) => { if (e.name !== 'AbortError') setPlaying(false); });
+    if (!virtual) videoRef.current?.play().catch(() => setPlaying(!!videoRef.current && !videoRef.current.paused));
   }, [virtual]);
   const pause = useCallback(() => { setPlaying(false); if (!virtual) videoRef.current?.pause(); }, [virtual]);
   const seek = useCallback((t: number) => { const c = Math.max(0, Math.min(duration, t)); setTime(c); if (!virtual && videoRef.current) videoRef.current.currentTime = c; }, [duration, virtual]);
