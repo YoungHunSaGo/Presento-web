@@ -423,11 +423,11 @@ await axios.put(upload.uploadUrl, file, {
 | `scores` | 항목별 점수 막대 또는 레이더 차트 | 항목은 항상 3개 |
 | `metrics.speech.paceSeries` | 말 속도 꺾은선 차트 | `t`는 구간 시작 초, 30초 간격 |
 | `metrics.speech.fillers` | 추임새 순위 목록 | 많은 순으로 정렬되어 옴 |
-| `metrics.nonverbal` | 비언어 지표 카드 | 비율은 0~1, 화면에서 %로 변환. `gazeFrontRatio`·`postureStability`·`gesturePerMin`은 `null`일 수 있음(카메라에 몸이 안 잡혀 측정 못 함). `null`이면 숫자 대신 "측정 불가"로 표시 |
-| `nonverbal.lowConfidenceRanges` | 타임라인에 회색 구간 | 얼굴 인식이 어려워 평가에서 뺀 구간 |
+| `metrics.nonverbal` | 비언어 지표 카드 | 비율은 0~1, 화면에서 %로 변환. `gazeFrontRatio`·`postureStability`·`gesturePerMin`은 측정 불가 시 null, 화면에는 '측정 불가'로 표시 |
+| `nonverbal.lowConfidenceRanges` | 타임라인에 회색 구간 | 얼굴과 몸이 모두 잡히지 않아 평가에서 뺀 구간 |
 | `feedbacks` | 타임라인 마커 + 피드백 목록 | 마커 클릭 시 `video.currentTime = start` |
 | `feedbacks.severity` | 마커 색 | `INFO` 파랑, `WARNING` 주황, `CRITICAL` 빨강 |
-| `feedbacks.evidence` | 피드백 카드의 근거 문장 | `null`일 수 있음(시선·자세 피드백은 인용할 대본이 없음). `null`이면 근거 문장 영역을 숨긴다 |
+| `feedbacks.evidence` | 피드백 카드의 근거 인용 | 실제 대본에서 가져온 문장. **evidence: 시선·자세 피드백은 null일 수 있음** (인용할 대본이 없을 때). null이면 인용 영역을 숨긴다 |
 | `transcript.segments` | 대본 탭 | 재생 중인 문장 하이라이트, 문장 클릭 시 그 초로 이동 |
 | `words.tag` | 대본 안 단어 색 | `FILLER` 추임새, `REPEAT` 반복어, `null` 일반 |
 | `improvedScripts` | 개선 스크립트 탭 | 원문/개선문 나란히 보기 |
@@ -473,7 +473,7 @@ await axios.put(upload.uploadUrl, file, {
 | 401 | `INVALID_CREDENTIALS` | 이메일 또는 비밀번호 틀림 |
 | 403 | `FORBIDDEN` | 다른 사람의 발표·회차 접근 |
 | 404 | `NOT_FOUND` | 없는 발표·회차 |
-| 405 | `METHOD_NOT_ALLOWED` | 지원하지 않는 HTTP 메서드로 호출(정상 사용 시엔 나오지 않음) |
+| 405 | `METHOD_NOT_ALLOWED` | 경로는 있지만 지원하지 않는 HTTP 메서드로 호출 |
 | 409 | `EMAIL_ALREADY_EXISTS` | 이미 가입된 이메일 |
 | 409 | `UPLOAD_NOT_FOUND` | 업로드 전에 분석 시작 호출 |
 | 409 | `ANALYSIS_NOT_READY` | 분석 완료 전 리포트 요청 |
