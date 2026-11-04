@@ -30,6 +30,8 @@ export function usePlayback(duration: number, src: string | undefined) {
   const pause = useCallback(() => { setPlaying(false); if (!virtual) videoRef.current?.pause(); }, [virtual]);
   const seek = useCallback((t: number) => { const c = Math.max(0, Math.min(duration, t)); setTime(c); if (!virtual && videoRef.current) videoRef.current.currentTime = c; }, [duration, virtual]);
   const bind = {
+    // 영상 URL이 오기 전에 옮겨 둔 위치(?t=, 클립 선택)를 영상에 반영한다.
+    onLoadedMetadata: () => { if (videoRef.current) videoRef.current.currentTime = time; },
     ref: videoRef, onTimeUpdate, onPlay: () => setPlaying(true), onPause: () => setPlaying(false), onEnded: () => setPlaying(false),
     onError: () => { setVirtual(true); setFailed(true); },
   };
