@@ -40,7 +40,7 @@ export function PresentationDetailPage() {
             <form className="row" style={{ gap: 12 }} onSubmit={(e) => { e.preventDefault(); if (title.trim()) save.mutate(); }}>
               <input className="input" style={{ width: 420 }} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} autoFocus aria-label="발표 제목" />
               <button className="btn btn-primary" disabled={!title.trim() || save.isPending}>저장</button>
-              <button type="button" className="link" onClick={() => setEditing(false)}>취소</button>
+              <button type="button" className="link" onClick={() => { setEditing(false); save.reset(); }}>취소</button>
             </form>
           ) : <h1 className="t-h1">{d.title}</h1>}
           <p className="t-small c-2">{meta}</p>
@@ -50,7 +50,7 @@ export function PresentationDetailPage() {
           {confirmDel ? (
             <span className="row" style={{ gap: 12 }}><span className="t-small">회차와 영상까지 모두 삭제됩니다.</span>
               <button className="link link-danger" onClick={() => del.mutate()} disabled={del.isPending}>삭제</button>
-              <button className="link link-plain" onClick={() => setConfirmDel(false)}>취소</button></span>
+              <button className="link link-plain" onClick={() => { setConfirmDel(false); del.reset(); }}>취소</button></span>
           ) : <button className="link link-plain link-danger" onClick={() => setConfirmDel(true)}>삭제</button>}
           <Link to={`/presentations/${id}/record`} className="btn btn-primary">{nextNo}회차 연습하기</Link>
         </div>

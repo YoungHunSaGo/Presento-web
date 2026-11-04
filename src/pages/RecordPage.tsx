@@ -21,8 +21,9 @@ export function RecordPage() {
           <p className="t-small c-2">mp4, mov, webm. 10분, 500MB까지.{p.data?.timeLimitSec ? ` 제한 시간 ${minutesLabel(p.data.timeLimitSec)}.` : ''}</p>
         </div>
         <div className="tabs" role="tablist" aria-label="영상 입력 방법">
-          <button role="tab" className="tab" aria-selected={tab === 'upload'} onClick={() => setTab('upload')} disabled={up.busy}>파일 업로드</button>
-          <button role="tab" className="tab" aria-selected={tab === 'record'} onClick={() => setTab('record')} disabled={up.busy}>웹캠 녹화</button>
+          {/* 두 탭이 업로드 상태(up)를 같이 쓰므로, 탭을 바꿀 때 다른 탭의 에러 문구를 지운다. */}
+          <button role="tab" className="tab" aria-selected={tab === 'upload'} onClick={() => { setTab('upload'); up.setError(null); }} disabled={up.busy}>파일 업로드</button>
+          <button role="tab" className="tab" aria-selected={tab === 'record'} onClick={() => { setTab('record'); up.setError(null); }} disabled={up.busy}>웹캠 녹화</button>
         </div>
         {tab === 'upload' ? <UploadPanel up={up} /> : <RecordPanel up={up} limitSec={p.data?.timeLimitSec ?? null} attemptNo={nextNo} />}
       </div>
