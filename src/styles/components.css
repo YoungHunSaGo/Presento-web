@@ -1,6 +1,6 @@
 /* logo */
 .logo { display: inline-flex; align-items: center; gap: 10px; }
-.logo-tile { display: inline-grid; place-items: center; background: linear-gradient(135deg, #6b8cff 0%, #1c40f0 100%); box-shadow: 0 6px 16px rgba(41, 80, 255, 0.35); }
+.logo-tile { display: inline-grid; place-items: center; background: linear-gradient(135deg, #6b8cff 0%, #1c40f0 100%); }
 .logo-word { font-weight: 800; letter-spacing: -0.02em; color: var(--ink); }
 
 /* top bar */
