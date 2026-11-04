@@ -11,7 +11,8 @@ export function usePlayback(duration: number, src: string | undefined) {
   const [virtual, setVirtual] = useState(!src);
   // 영상 URL은 받았지만 <video>가 불러오지 못한 경우(URL 만료, 코덱 등). 화면에 알리는 데 쓴다.
   const [failed, setFailed] = useState(false);
-  useEffect(() => { setVirtual(!src); setFailed(false); }, [src]);
+  // 영상이 바뀌면 재생을 멈춘다. 가상 재생 중에 URL이 와도 영상은 멈춘 채로 시작하기 때문.
+  useEffect(() => { setVirtual(!src); setFailed(false); setPlaying(false); }, [src]);
 
   useEffect(() => {
     if (!virtual || !playing) return;
