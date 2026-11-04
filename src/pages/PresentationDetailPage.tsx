@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
-import { deleteAnalysis, deletePresentation, getHistory, getPresentation, getReport, updatePresentation } from '@/api/endpoints';
+import { deletePresentation, getHistory, getPresentation, getReport, updatePresentation } from '@/api/endpoints';
 import { errorMessage } from '@/api/client';
 import type { Attempt, Feedback, Report, Severity } from '@/api/types';
 import { clock, dateTimeLabel, minutesLabel } from '@/lib/format';
@@ -22,7 +22,6 @@ export function PresentationDetailPage() {
   const [editing, setEditing] = useState(false); const [title, setTitle] = useState(''); const [confirmDel, setConfirmDel] = useState(false);
   const save = useMutation({ mutationFn: () => updatePresentation(id, { title: title.trim() }), onSuccess: () => { setEditing(false); qc.invalidateQueries({ queryKey: ['presentation', id] }); qc.invalidateQueries({ queryKey: ['presentations'] }); } });
   const del = useMutation({ mutationFn: () => deletePresentation(id), onSuccess: () => { qc.invalidateQueries({ queryKey: ['presentations'] }); nav('/'); } });
-  const delAttempt = useMutation({ mutationFn: (aid: string) => deleteAnalysis(aid), onSuccess: () => qc.invalidateQueries({ queryKey: ['presentation', id] }) });
 
   if (p.isPending) return <main className="page"><Loading /></main>;
   if (p.isError) return <main className="page"><ErrorState message={errorMessage(p.error)} onRetry={() => p.refetch()} /></main>;
@@ -60,7 +59,7 @@ export function PresentationDetailPage() {
           <h2 id="attempts-h" className="t-h2">회차</h2>
           {d.attempts.length === 0 && <p className="t-body c-2">아직 연습한 회차가 없습니다. 첫 영상을 올려 보세요.</p>}
           <ol className="attempts rule-list">
-            {d.attempts.map((a) => <AttemptRow key={a.analysisId} a={a} report={reportOf(a.analysisId)} presentationId={id} onDelete={() => delAttempt.mutate(a.analysisId)} />)}
+            {d.attempts.map((a) => <AttemptRow key={a.analysisId} a={a} report={reportOf(a.analysisId)} />)}
           </ol>
           {h.data && h.data.items.length >= 2 && (
             <figure className="history" aria-label="회차별 종합 점수">
@@ -97,7 +96,7 @@ export function PresentationDetailPage() {
   );
 }
 
-function AttemptRow({ a, report, presentationId, onDelete }: { a: Attempt; report?: Report; presentationId: string; onDelete: () => void }) {
+function AttemptRow({ a, report }: { a: Attempt; report?: Report }) {
   const meta = [dateTimeLabel(a.createdAt), a.durationSec ? minutesLabel(a.durationSec) : null].filter(Boolean).join(', ');
   return (
     // 완료된 회차는 줄 어디를 눌러도 리포트로 들어가게 링크 영역을 줄 전체로 넓힌다(.attempt-link).
@@ -111,11 +110,7 @@ function AttemptRow({ a, report, presentationId, onDelete }: { a: Attempt; repor
         </>
       )}
       {a.status === 'FAILED' && (
-        <span className="row wrap" style={{ gap: 16 }}>
-          <span className="t-small c-err" style={{ fontWeight: 600 }}>분석하지 못했습니다.</span>
-          <Link to={`/presentations/${presentationId}/record`} className="link">다른 영상 올리기</Link>
-          <button className="link link-plain link-muted" onClick={onDelete}>회차 삭제</button>
-        </span>
+        <span className="t-small c-err" style={{ fontWeight: 600 }}>분석하지 못했습니다.</span>
       )}
       {(a.status === 'QUEUED' || a.status === 'PROCESSING' || a.status === 'WAITING_UPLOAD') && (
         <Link to={`/analyses/${a.analysisId}/progress`} className="link">분석 진행 보기</Link>
