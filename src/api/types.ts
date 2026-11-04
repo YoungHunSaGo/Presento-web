@@ -37,6 +37,8 @@ export interface HistoryItem {
 
 export interface CreateAnalysisRequest { fileName: string; contentType: string; fileSize: number; source: 'UPLOAD' | 'RECORDING' }
 export interface CreateAnalysisResponse { analysisId: string; attemptNo: number; status: AnalysisStatus; upload: UploadTicket }
+// 이미 시작한 회차에 다시 부르면 QUEUED 가 아니라 현재 상태가 온다.
+export interface StartAnalysisResponse { analysisId: string; status: AnalysisStatus }
 
 export interface AnalysisState {
   analysisId: string; presentationId: string; attemptNo: number; status: AnalysisStatus; stage: AnalysisStage | null;
