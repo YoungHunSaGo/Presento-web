@@ -15,7 +15,12 @@ export function ProgressPage() {
   if (q.isPending) return <main className="page"><Loading label="분석 상태를 불러오는 중" /></main>;
   if (q.isError) return <main className="page"><ErrorState message={errorMessage(q.error)} onRetry={() => q.refetch()} /></main>;
   const a = q.data; const failed = a.status === 'FAILED';
-  const idx = a.stage ? STAGES.findIndex((s) => s.stage === a.stage) : a.status === 'QUEUED' ? -1 : 0;
+  // 서버는 FAILED 일 때 stage 를 null 로 주고 progress 는 멈춘 자리에 남긴다.
+  // 그때는 명세의 단계별 대략 progress(0·10·40·65·80~)로 어느 단계에서 멈췄는지 짚는다.
+  const idx = a.stage ? STAGES.findIndex((s) => s.stage === a.stage)
+    : a.status === 'QUEUED' ? -1
+    : failed ? [10, 40, 65, 80].filter((from) => a.progress >= from).length
+    : 0;
   return (
     <main className="page page-center">
       <div className="progress-col stack" style={{ gap: 'var(--s-6)' }}>
