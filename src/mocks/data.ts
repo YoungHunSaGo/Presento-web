@@ -1,5 +1,5 @@
 // 명세 4·5장 예시 JSON을 바탕으로 한 목업 데이터. 필드는 명세 그대로이고, 배열 항목만 시연용으로 늘렸다.
-import type { Feedback, HistoryItem, Presentation, PresentationDetail, Report, Segment, User, Word } from '@/api/types';
+import type { Attempt, Feedback, HistoryItem, Presentation, PresentationDetail, Report, Segment, User, Word } from '@/api/types';
 
 export const mockUser: User = { id: 'u-1a2b', email: 'student@ycu.ac.kr', nickname: '영훈', createdAt: '2026-11-03T17:04:00+09:00' };
 
@@ -10,16 +10,18 @@ export const mockPresentations: Presentation[] = [
   { id: 'p-9e17', title: '동아리 신입 OT 소개', purpose: 'ETC', timeLimitSec: null, hasSlides: false, attemptCount: 0, latestScore: null, createdAt: '2026-10-28T10:00:00+09:00' },
 ];
 
-export const mockDetail = (p: Presentation): PresentationDetail => ({
-  ...p,
-  attempts: p.id === 'p-7f3c'
+export const mockDetail = (p: Presentation): PresentationDetail => {
+  const attempts: Attempt[] = p.id === 'p-7f3c'
     ? [
         { analysisId: 'a-9d21', attemptNo: 3, status: 'COMPLETED', overallScore: 82, durationSec: 287.4, createdAt: '2026-11-05T20:00:00+09:00' },
         { analysisId: 'a-55e0', attemptNo: 2, status: 'FAILED', overallScore: null, durationSec: null, createdAt: '2026-11-04T21:30:00+09:00' },
         { analysisId: 'a-1c4f', attemptNo: 1, status: 'COMPLETED', overallScore: 64, durationSec: 312.0, createdAt: '2026-11-03T21:00:00+09:00' },
       ]
-    : [],
-});
+    : [];
+  // 서버처럼 회차 수와 최근 점수는 attempts 에서 계산한다.
+  const latest = attempts.find((a) => a.status === 'COMPLETED');
+  return { ...p, attemptCount: attempts.length, latestScore: latest?.overallScore ?? null, attempts };
+};
 
 export const mockHistory: HistoryItem[] = [
   { attemptNo: 1, analysisId: 'a-1c4f', createdAt: '2026-11-03T21:00:00+09:00', overallScore: 64, scores: { DELIVERY: 58, NONVERBAL: 70, CONTENT: 65 }, fillerCount: 31, syllablesPerMin: 392 },
