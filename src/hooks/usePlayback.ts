@@ -9,7 +9,9 @@ export function usePlayback(duration: number, src: string | undefined) {
   const [time, setTime] = useState(0);
   const [playing, setPlaying] = useState(false);
   const [virtual, setVirtual] = useState(!src);
-  useEffect(() => setVirtual(!src), [src]);
+  // 영상 URL은 받았지만 <video>가 불러오지 못한 경우(URL 만료, 코덱 등). 화면에 알리는 데 쓴다.
+  const [failed, setFailed] = useState(false);
+  useEffect(() => { setVirtual(!src); setFailed(false); }, [src]);
 
   useEffect(() => {
     if (!virtual || !playing) return;
@@ -24,7 +26,7 @@ export function usePlayback(duration: number, src: string | undefined) {
   const seek = useCallback((t: number) => { const c = Math.max(0, Math.min(duration, t)); setTime(c); if (!virtual && videoRef.current) videoRef.current.currentTime = c; }, [duration, virtual]);
   const bind = {
     ref: videoRef, onTimeUpdate, onPlay: () => setPlaying(true), onPause: () => setPlaying(false), onEnded: () => setPlaying(false),
-    onError: () => setVirtual(true),
+    onError: () => { setVirtual(true); setFailed(true); },
   };
-  return { time, playing, virtual, play, pause, seek, bind };
+  return { time, playing, virtual, failed, play, pause, seek, bind };
 }

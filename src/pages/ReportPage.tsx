@@ -135,7 +135,7 @@ function ReportView({ report, videoUrl, videoError, title, nextNo }: { report: R
         <aside className="report-side stack" style={{ gap: 'var(--s-4)' }} aria-label="영상">
           <div className="player">
             {videoUrl ? <video {...pb.bind} src={videoUrl} playsInline preload="metadata" /> : null}
-            {videoError && <p className="player-msg t-small" role="alert">{videoError}</p>}
+            {(videoError || pb.failed) && <p className="player-msg t-small" role="alert">{videoError ?? '영상을 재생하지 못했어요. 새로고침하면 다시 불러와요.'}</p>}
             <div className="player-cap" aria-live="off">{segNow ? <p>{words(segNow, true)}</p> : null}</div>
             {selIdx >= 0 && <span className="player-badge t-caption"><span className="t-data">클립 {selIdx + 1} / {clips.length}</span> {clips[selIdx].title}</span>}
           </div>
