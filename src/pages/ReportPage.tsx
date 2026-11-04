@@ -52,13 +52,22 @@ function ReportView({ report, videoUrl, videoError, reloadVideo, videoReloading,
   useEffect(() => { const t = Number(params.get('t')); if (!Number.isNaN(t) && params.get('t')) { const f = clips.find((c) => Math.abs(c.start - t) < 0.5); if (f) go(f, false); else pb.seek(t); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // 클립만 이어 보기: 지금 클립 끝을 넘으면 다음 클립 시작으로 건너뛴다.
+  // 클립이 영상 끝에서 끝나면 영상이 먼저 멈추므로(ended), 그때도 다음 클립으로 넘긴다.
+  const atEnd = pb.time >= report.durationSec - 0.05;
   useEffect(() => {
-    if (!clipOnly || !pb.playing) return;
+    if (!clipOnly || (!pb.playing && !atEnd)) return;
     const cur = clips.find((c) => c.id === selected);
-    if (cur && pb.time >= cur.end) { const i = clips.indexOf(cur); const nx = clips[i + 1]; if (nx) go(nx); else pb.pause(); }
-  }, [pb.time, clipOnly]); // eslint-disable-line react-hooks/exhaustive-deps
-  // 재생 위치가 다른 클립에 들어가면 선택을 따라간다.
-  useEffect(() => { const inClip = clips.find((c) => pb.time >= c.start && pb.time < c.end); if (inClip && inClip.id !== selected) setSelected(inClip.id); }, [pb.time]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (cur && pb.time >= cur.end - 0.05) { const i = clips.indexOf(cur); const nx = clips[i + 1]; if (nx) go(nx); else pb.pause(); }
+  }, [pb.time, pb.playing, clipOnly]); // eslint-disable-line react-hooks/exhaustive-deps
+  // 재생 위치가 다른 클립에 들어가면 선택을 따라간다. 클립은 서로 겹칠 수 있어서
+  // 지금 클립 안에 있으면 그대로 둔다(겹친 앞 클립으로 되돌아가 한 클립만 반복되지 않게).
+  // 이어 보기 중에는 위 효과가 순서대로 넘기므로 따라가지 않는다.
+  useEffect(() => {
+    if (clipOnly) return;
+    const inside = (c: Feedback) => pb.time >= c.start && pb.time < c.end;
+    if (clips.find((c) => c.id === selected && inside(c))) return;
+    const inClip = clips.find(inside); if (inClip) setSelected(inClip.id);
+  }, [pb.time]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const selIdx = clips.findIndex((c) => c.id === selected);
   const segNow = report.transcript.segments.find((s) => pb.time >= s.start && pb.time < s.end);
