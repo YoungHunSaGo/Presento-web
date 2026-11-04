@@ -35,6 +35,9 @@ export function errorMessage(err: unknown, fallback = '잠시 후 다시 시도�
 export function errorCode(err: unknown): string | undefined {
   return (err as AxiosError<ApiErrorBody>)?.response?.data?.error?.code;
 }
+export function errorStatus(err: unknown): number | undefined {
+  return (err as AxiosError)?.response?.status;
+}
 
 /** 발급받은 업로드 URL로 직접 PUT. 인증 헤더가 붙지 않도록 인스턴스가 아닌 기본 axios 사용(명세 N1). */
 export async function putToUploadUrl(
