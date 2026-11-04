@@ -40,7 +40,7 @@ export function NewPresentationPage() {
     <main className="page page-center">
       <form className="form-col stack" onSubmit={submit} style={{ gap: 'var(--s-8)' }}>
         <h1 className="t-h1">새 발표</h1>
-        <label className="field"><span>발표 제목</span><input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 캡스톤 중간 발표" required /></label>
+        <label className="field"><span>발표 제목</span><input className="input" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="예: 캡스톤 중간 발표" maxLength={100} required /></label>
         <fieldset className="radios"><legend className="field-legend">발표 목적</legend>
           {(Object.keys(PURPOSE_LABEL) as Purpose[]).map((k) => (
             <label key={k} className="radio"><input type="radio" name="purpose" value={k} checked={purpose === k} onChange={() => setPurpose(k)} /><span>{PURPOSE_LABEL[k]}</span></label>

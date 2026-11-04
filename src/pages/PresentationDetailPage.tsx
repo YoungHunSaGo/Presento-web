@@ -38,7 +38,7 @@ export function PresentationDetailPage() {
         <div className="stack" style={{ gap: 6 }}>
           {editing ? (
             <form className="row" style={{ gap: 12 }} onSubmit={(e) => { e.preventDefault(); if (title.trim()) save.mutate(); }}>
-              <input className="input" style={{ width: 420 }} value={title} onChange={(e) => setTitle(e.target.value)} autoFocus aria-label="발표 제목" />
+              <input className="input" style={{ width: 420 }} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={100} autoFocus aria-label="발표 제목" />
               <button className="btn btn-primary" disabled={!title.trim() || save.isPending}>저장</button>
               <button type="button" className="link" onClick={() => setEditing(false)}>취소</button>
             </form>

@@ -44,7 +44,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
           <h2 className="t-h1">{isSignup ? '회원가입' : '로그인'}</h2>
           {isSignup && (
             <label className="field"><span>닉네임</span>
-              <input className="input" value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="nickname" required /></label>
+              <input className="input" value={nickname} onChange={(e) => setNickname(e.target.value)} autoComplete="nickname" maxLength={50} required /></label>
           )}
           <label className="field"><span>이메일</span>
             <input className="input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" required placeholder="name@school.ac.kr"
