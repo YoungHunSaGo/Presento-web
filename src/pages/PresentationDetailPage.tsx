@@ -102,7 +102,8 @@ export function PresentationDetailPage() {
 function AttemptRow({ a, report, presentationId, onDelete }: { a: Attempt; report?: Report; presentationId: string; onDelete: () => void }) {
   const meta = [dateTimeLabel(a.createdAt), a.durationSec ? minutesLabel(a.durationSec) : null].filter(Boolean).join(', ');
   return (
-    <li className="attempt">
+    // 완료된 회차는 줄 어디를 눌러도 리포트로 들어가게 링크 영역을 줄 전체로 넓힌다(.attempt-link).
+    <li className={`attempt${a.status === 'COMPLETED' ? ' attempt-link' : ''}`}>
       <div className="stack" style={{ gap: 2, minWidth: 170 }}><span className="t-body-strong">{a.attemptNo}회차</span><span className="t-caption c-3">{meta}</span></div>
       {a.status === 'COMPLETED' && (
         <>
