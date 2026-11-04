@@ -25,12 +25,23 @@ export function ReportPage() {
   if (r.isPending) return <main className="page"><Loading label="리포트를 불러오는 중" /></main>;
   if (r.isError) return <main className="page"><ErrorState message={errorMessage(r.error)} onRetry={() => r.refetch()} /></main>;
   return <ReportView report={r.data} videoUrl={v.data?.videoUrl} videoError={v.isError ? errorMessage(v.error, '영상을 불러오지 못했어요.') : undefined}
+    reloadVideo={() => v.refetch()} videoReloading={v.isFetching}
     title={p.data?.title} nextNo={(p.data?.attempts[0]?.attemptNo ?? r.data.attemptNo) + 1} />;
 }
 
-function ReportView({ report, videoUrl, videoError, title, nextNo }: { report: Report; videoUrl?: string; videoError?: string; title?: string; nextNo: number }) {
+function ReportView({ report, videoUrl, videoError, reloadVideo, videoReloading, title, nextNo }: {
+  report: Report; videoUrl?: string; videoError?: string; reloadVideo: () => void; videoReloading: boolean; title?: string; nextNo: number;
+}) {
   const [params] = useSearchParams();
   const pb = usePlayback(report.durationSec, videoUrl || undefined);
+  // 재생 URL은 1시간 뒤 만료된다. 영상을 못 불러오면 URL(N5)을 새로 받아 다시 시도하고,
+  // 1분 안에 또 실패하면(코덱 문제 등) 다시 받지 않고 안내한다.
+  const [videoReloadedAt, setVideoReloadedAt] = useState(0);
+  useEffect(() => {
+    if (!pb.failed || Date.now() - videoReloadedAt < 60_000) return;
+    setVideoReloadedAt(Date.now()); reloadVideo();
+  }, [pb.failed]); // eslint-disable-line react-hooks/exhaustive-deps
+  const videoFailed = pb.failed && !videoReloading && videoReloadedAt > 0;
   const clips = useMemo(() => [...report.feedbacks].sort((a, b) => a.start - b.start), [report.feedbacks]);
   const [selected, setSelected] = useState<string | null>(clips[0]?.id ?? null);
   const [clipOnly, setClipOnly] = useState(false);
@@ -135,7 +146,7 @@ function ReportView({ report, videoUrl, videoError, title, nextNo }: { report: R
         <aside className="report-side stack" style={{ gap: 'var(--s-4)' }} aria-label="영상">
           <div className="player">
             {videoUrl ? <video {...pb.bind} src={videoUrl} playsInline preload="metadata" /> : null}
-            {(videoError || pb.failed) && <p className="player-msg t-small" role="alert">{videoError ?? '영상을 재생하지 못했어요. 새로고침하면 다시 불러와요.'}</p>}
+            {(videoError || videoFailed) && <p className="player-msg t-small" role="alert">{videoError ?? '영상을 재생하지 못했어요.'}</p>}
             <div className="player-cap" aria-live="off">{segNow ? <p>{words(segNow, true)}</p> : null}</div>
             {selIdx >= 0 && <span className="player-badge t-caption"><span className="t-data">클립 {selIdx + 1} / {clips.length}</span> {clips[selIdx].title}</span>}
           </div>
