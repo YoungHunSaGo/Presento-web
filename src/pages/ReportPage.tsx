@@ -24,10 +24,11 @@ export function ReportPage() {
   const p = useQuery({ queryKey: ['presentation', r.data?.presentationId], queryFn: () => getPresentation(r.data!.presentationId), enabled: !!r.data });
   if (r.isPending) return <main className="page"><Loading label="리포트를 불러오는 중" /></main>;
   if (r.isError) return <main className="page"><ErrorState message={errorMessage(r.error)} onRetry={() => r.refetch()} /></main>;
-  return <ReportView report={r.data} videoUrl={v.data?.videoUrl} title={p.data?.title} nextNo={(p.data?.attempts[0]?.attemptNo ?? r.data.attemptNo) + 1} />;
+  return <ReportView report={r.data} videoUrl={v.data?.videoUrl} videoError={v.isError ? errorMessage(v.error, '영상을 불러오지 못했어요.') : undefined}
+    title={p.data?.title} nextNo={(p.data?.attempts[0]?.attemptNo ?? r.data.attemptNo) + 1} />;
 }
 
-function ReportView({ report, videoUrl, title, nextNo }: { report: Report; videoUrl?: string; title?: string; nextNo: number }) {
+function ReportView({ report, videoUrl, videoError, title, nextNo }: { report: Report; videoUrl?: string; videoError?: string; title?: string; nextNo: number }) {
   const [params] = useSearchParams();
   const pb = usePlayback(report.durationSec, videoUrl || undefined);
   const clips = useMemo(() => [...report.feedbacks].sort((a, b) => a.start - b.start), [report.feedbacks]);
@@ -134,6 +135,7 @@ function ReportView({ report, videoUrl, title, nextNo }: { report: Report; video
         <aside className="report-side stack" style={{ gap: 'var(--s-4)' }} aria-label="영상">
           <div className="player">
             {videoUrl ? <video {...pb.bind} src={videoUrl} playsInline preload="metadata" /> : null}
+            {videoError && <p className="player-msg t-small" role="alert">{videoError}</p>}
             <div className="player-cap" aria-live="off">{segNow ? <p>{words(segNow, true)}</p> : null}</div>
             {selIdx >= 0 && <span className="player-badge t-caption"><span className="t-data">클립 {selIdx + 1} / {clips.length}</span> {clips[selIdx].title}</span>}
           </div>
