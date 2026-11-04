@@ -51,7 +51,7 @@
 .attempt-link .attempt-track::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
 .attempt-link .attempt-track:focus-visible { outline: none; }
 .attempt-link .attempt-track:focus-visible::after { box-shadow: var(--ring); }
-.attempt-link:hover { background: rgba(255, 255, 255, 0.6); }
+.attempt-link:hover { background: rgba(14, 15, 18, 0.03); }
 .attempt-link:hover .etrack-clip { opacity: 1; }
 .history { margin: var(--s-8) 0 0; display: grid; gap: var(--s-3); }
 
