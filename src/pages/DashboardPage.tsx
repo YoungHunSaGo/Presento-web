@@ -19,7 +19,7 @@ export function DashboardPage() {
         <Link to="/presentations/new" className="btn btn-primary">발표 만들기</Link>
       </div>
       <table className="ptable">
-        <thead><tr><th>발표</th><th>목적</th><th className="r">연습</th><th className="r">최근 점수</th><th className="r">날짜</th></tr></thead>
+        <thead><tr><th>발표</th><th className="r">목적</th><th className="r">연습</th><th className="r">최근 점수</th><th className="r">날짜</th></tr></thead>
         <tbody>
           {q.data.items.map((p) => {
             const meta = [p.timeLimitSec ? `제한 ${minutesLabel(p.timeLimitSec)}` : null, p.hasSlides ? '슬라이드 있음' : null].filter(Boolean).join(', ');
@@ -27,7 +27,7 @@ export function DashboardPage() {
               <tr key={p.id}>
                 <td><div className="ptable-name"><Link to={`/presentations/${p.id}`} className="ptable-title">{p.title}</Link>
                   {meta && <span className="t-small c-2">{meta}</span>}</div></td>
-                <td>{PURPOSE_LABEL[p.purpose]}</td>
+                <td className="r">{PURPOSE_LABEL[p.purpose]}</td>
                 <td className="r">{p.attemptCount}회</td>
                 <td className="r">{p.latestScore ?? <span className="c-3">–</span>}</td>
                 <td className="r">{dateLabel(p.createdAt)}</td>
