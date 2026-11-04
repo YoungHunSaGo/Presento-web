@@ -44,6 +44,15 @@
 .attempt { display: flex; align-items: center; gap: 28px; padding: 18px 0; }
 .attempt-track { flex: 1; max-width: 420px; display: grid; gap: 6px; text-decoration: none; color: inherit; padding: 6px 0; }
 .attempt-track:hover .etrack-clip { opacity: 1; }
+/* 완료된 회차: 리포트 링크의 클릭 영역을 줄 전체로 넓힌다. */
+/* 좌우 음수 여백 + 같은 안쪽 여백: 내용 위치는 그대로 두고 hover 배경만 바깥으로 조금 넓힌다. */
+.attempt-link { position: relative; cursor: pointer; border-radius: 8px; margin: 0 -12px; padding-left: 12px; padding-right: 12px; transition: background-color 160ms var(--ease-out); }
+.attempt-link .attempt-track { position: static; }
+.attempt-link .attempt-track::after { content: ''; position: absolute; inset: 0; border-radius: inherit; }
+.attempt-link .attempt-track:focus-visible { outline: none; }
+.attempt-link .attempt-track:focus-visible::after { box-shadow: var(--ring); }
+.attempt-link:hover { background: rgba(255, 255, 255, 0.6); }
+.attempt-link:hover .etrack-clip { opacity: 1; }
 .history { margin: var(--s-8) 0 0; display: grid; gap: var(--s-3); }
 
 /* record */
