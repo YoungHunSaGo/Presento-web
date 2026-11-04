@@ -5,7 +5,7 @@ import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YA
 import { deleteAnalysis, deletePresentation, getHistory, getPresentation, getReport, updatePresentation } from '@/api/endpoints';
 import { errorMessage } from '@/api/client';
 import type { Attempt, Feedback, Report, Severity } from '@/api/types';
-import { PURPOSE_LABEL, clock, dateTimeLabel, minutesLabel } from '@/lib/format';
+import { clock, dateTimeLabel, minutesLabel } from '@/lib/format';
 import { BackLink, ErrorState, Loading } from '@/components/Layout';
 import { EvidenceTrack } from '@/components/EvidenceTrack';
 
@@ -29,7 +29,6 @@ export function PresentationDetailPage() {
   const d = p.data; const nextNo = (d.attempts[0]?.attemptNo ?? 0) + 1;
   const latest = completed[0] ? reportOf(completed[0].analysisId) : undefined;
   const watch = latest ? [...latest.feedbacks].sort((a, b) => SEV_RANK[a.severity] - SEV_RANK[b.severity] || a.start - b.start).slice(0, 3) : [];
-  const meta = [PURPOSE_LABEL[d.purpose], d.timeLimitSec ? `제한 ${minutesLabel(d.timeLimitSec)}` : null, d.hasSlides ? '슬라이드 PDF 있음' : null].filter(Boolean).join(', ');
 
   return (
     <main className="page stack" style={{ gap: 'var(--s-8)' }}>
@@ -43,7 +42,6 @@ export function PresentationDetailPage() {
               <button type="button" className="link" onClick={() => { setEditing(false); save.reset(); }}>취소</button>
             </form>
           ) : <h1 className="t-h1">{d.title}</h1>}
-          <p className="t-small c-2">{meta}</p>
         </div>
         <div className="row" style={{ gap: 20 }}>
           {!editing && <button className="link link-plain" onClick={() => { setTitle(d.title); setEditing(true); }}>수정</button>}
