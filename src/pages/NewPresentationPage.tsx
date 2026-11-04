@@ -7,14 +7,23 @@ import type { Purpose } from '@/api/types';
 import { PURPOSE_LABEL, bytes } from '@/lib/format';
 
 const PDF_MAX = 20 * 1024 * 1024;
+const TIME_LIMIT_MAX = 600;
 
 export function NewPresentationPage() {
   const nav = useNavigate(); const qc = useQueryClient();
   const [title, setTitle] = useState(''); const [purpose, setPurpose] = useState<Purpose>('CLASS');
   const [minutes, setMinutes] = useState(''); const [pdf, setPdf] = useState<File | null>(null); const [pdfErr, setPdfErr] = useState<string | null>(null);
+  // 서버는 timeLimitSec 을 1~600초(영상 최대 10분)만 받는다.
+  const limitSec = minutes ? Math.round(Number(minutes) * 60) : null;
+  const limitMsg = limitSec === null ? null
+    : Number.isNaN(limitSec) ? '숫자로 입력해 주세요.'
+    : limitSec < 1 ? (Number(minutes) > 0 ? '1초 이상이 되도록 입력해 주세요.' : '0보다 큰 값을 입력해 주세요.')
+    : limitSec > TIME_LIMIT_MAX ? '제한 시간은 10분 이하로 입력해 주세요.'
+    : null;
+  const limitErr = limitMsg !== null;
   const m = useMutation({
     mutationFn: async () => {
-      const p = await createPresentation({ title: title.trim(), purpose, ...(minutes ? { timeLimitSec: Math.round(Number(minutes) * 60) } : {}) });
+      const p = await createPresentation({ title: title.trim(), purpose, ...(limitSec ? { timeLimitSec: limitSec } : {}) });
       if (pdf) { const t = await getSlidesUploadUrl(p.id, { fileName: pdf.name, contentType: 'application/pdf', fileSize: pdf.size }); await putToUploadUrl(t, pdf); }
       return p;
     },
@@ -26,7 +35,7 @@ export function NewPresentationPage() {
     if (f.size > PDF_MAX) { setPdf(null); return setPdfErr('PDF는 20MB 이하만 업로드할 수 있어요.'); }
     setPdf(f);
   };
-  const submit = (e: FormEvent) => { e.preventDefault(); if (title.trim()) m.mutate(); };
+  const submit = (e: FormEvent) => { e.preventDefault(); if (title.trim() && !limitErr) m.mutate(); };
   return (
     <main className="page page-center">
       <form className="form-col stack" onSubmit={submit} style={{ gap: 'var(--s-8)' }}>
@@ -39,8 +48,8 @@ export function NewPresentationPage() {
         </fieldset>
         <div className="stack" style={{ gap: 6 }}>
           <label className="field" style={{ maxWidth: 200 }}><span>제한 시간 (분, 선택)</span>
-            <input className="input" inputMode="decimal" value={minutes} onChange={(e) => setMinutes(e.target.value.replace(/[^\d.]/g, ''))} placeholder="5" /></label>
-          <p className="field-msg">비워 두면 시간 초과를 평가하지 않습니다.</p>
+            <input className="input" inputMode="decimal" value={minutes} onChange={(e) => setMinutes(e.target.value.replace(/[^\d.]/g, ''))} placeholder="5" aria-invalid={limitErr || undefined} /></label>
+          <p className={`field-msg${limitErr ? ' err' : ''}`}>{limitMsg ?? '비워 두면 시간 초과를 평가하지 않습니다.'}</p>
         </div>
         <div className="stack" style={{ gap: 8 }}>
           <span className="field-legend">발표 자료 PDF (선택)</span>
@@ -52,7 +61,7 @@ export function NewPresentationPage() {
         </div>
         {m.isError && <p className="field-msg err" role="alert">{errorMessage(m.error)}</p>}
         <div className="row" style={{ gap: 20 }}>
-          <button className="btn btn-primary" disabled={!title.trim() || m.isPending}>발표 만들기</button>
+          <button className="btn btn-primary" disabled={!title.trim() || limitErr || m.isPending}>발표 만들기</button>
           <Link to="/" className="link">취소</Link>
         </div>
       </form>
