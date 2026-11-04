@@ -24,7 +24,7 @@ export interface Attempt {
   analysisId: string; attemptNo: number; status: AnalysisStatus; overallScore: number | null;
   durationSec: number | null; createdAt: string;
 }
-export interface PresentationDetail extends Omit<Presentation, 'attemptCount' | 'latestScore' | 'createdAt'> {
+export interface PresentationDetail extends Presentation {
   attempts: Attempt[];
 }
 

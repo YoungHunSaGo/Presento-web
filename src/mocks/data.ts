@@ -11,7 +11,7 @@ export const mockPresentations: Presentation[] = [
 ];
 
 export const mockDetail = (p: Presentation): PresentationDetail => ({
-  id: p.id, title: p.title, purpose: p.purpose, timeLimitSec: p.timeLimitSec, hasSlides: p.hasSlides,
+  ...p,
   attempts: p.id === 'p-7f3c'
     ? [
         { analysisId: 'a-9d21', attemptNo: 3, status: 'COMPLETED', overallScore: 82, durationSec: 287.4, createdAt: '2026-11-05T20:00:00+09:00' },
