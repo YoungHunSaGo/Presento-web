@@ -65,7 +65,9 @@ export const handlers = [
   http.put('https://presento-bucket.s3.amazonaws.com/*', async () => { await delay(600); return new HttpResponse(null, { status: 200 }); }),
   http.post(`${B}/analyses/:id/start`, ({ params }) => {
     const a = analyses.get(String(params.id)); if (!a) return err(409, 'UPLOAD_NOT_FOUND', '업로드된 영상을 찾지 못했어요.');
-    a.status = 'QUEUED'; return HttpResponse.json({ analysisId: a.analysisId, status: 'QUEUED' }, { status: 202 });
+    // 서버처럼 이미 시작한 회차는 되돌리지 않고 현재 상태만 알려준다.
+    if (a.status === 'WAITING_UPLOAD') a.status = 'QUEUED';
+    return HttpResponse.json({ analysisId: a.analysisId, status: a.status }, { status: 202 });
   }),
   http.get(`${B}/analyses/:id`, ({ params }) => {
     const id = String(params.id);
