@@ -138,8 +138,9 @@
   .report-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'side' 'main' 'metrics'; }
   .recorder { grid-template-columns: 1fr; }
 }
-/* 로그인: 왼쪽 소개 칸(100vw - 635px)이 로그인 칸(408px)보다 좁아지면 위아래로 쌓는다. */
-@media (max-width: 1042px) {
+/* 로그인: 왼쪽 소개 칸은 100vw - 635px. 제목 둘째 줄(40px에서 약 422px)이 줄바꿈되기 전에
+   위아래로 쌓는다. 글꼴 차이를 감안해 여유를 둔다(1081px에서 칸 446px). */
+@media (max-width: 1080px) {
   .auth { place-items: start center; }
   .auth-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; max-width: 480px; }
   .auth-divider { display: none; }
