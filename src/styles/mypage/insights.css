@@ -34,6 +34,13 @@
 .ins-empty { margin: 0; min-height: 152px; display: grid; place-content: center; text-align: center; padding: var(--s-6);
   border: 1px dashed var(--line-2); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.6); }
 
+/* 다음 연습 집중 포인트: 진한 면 위 흰 글자로 강조. 파랑(evidence)은 타임스탬프 근거 전용이라 쓰지 않는다. */
+.ins-focus { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: start; gap: var(--s-4); padding: var(--s-6);
+  border-radius: var(--radius-control); background: var(--ink); color: var(--on-ink); }
+.ins-focus-icon { width: 24px; height: 24px; margin-top: 2px; color: var(--on-ink-2); }
+.ins-focus-body { display: grid; gap: var(--s-1); min-width: 0; }
+.ins-focus-title { margin: 0; color: var(--on-ink-2); }
+
 /* 데이터 부족(INSUFFICIENT_DATA): 카드·집중 포인트 대신 안내 한 줄 + 남은 회차 칸 */
 .ins-insufficient { display: grid; justify-items: center; gap: var(--s-4); text-align: center; padding: var(--s-8) var(--s-6);
   border: 1px dashed var(--line-2); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.6); }
@@ -47,6 +54,7 @@
 }
 @media (max-width: 480px) {
   .ins-card { padding: var(--s-4); }
+  .ins-focus { padding: var(--s-4); gap: var(--s-3); }
   .ins-score-val { font-size: 28px; line-height: 36px; }
   .ins-empty { min-height: 0; }
 }

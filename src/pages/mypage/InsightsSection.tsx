@@ -42,7 +42,24 @@ function Ready({ d }: { d: MyInsights }) {
         <InsightColumn kind="strength" title="강점" order="점수 높은 순" items={d.strengths} empty="아직 뚜렷한 강점이 없어요" />
         <InsightColumn kind="weakness" title="약점" order="점수 낮은 순" items={d.weaknesses} empty="뚜렷한 약점이 없어요. 좋아요!" />
       </div>
+      {/* 명세: focusTip 은 약점이 있을 때만 문자열이다. null 이면 상자를 그리지 않는다(빈 문자열도 같이 거른다). */}
+      {d.focusTip && <FocusTip tip={d.focusTip} />}
     </div>
+  );
+}
+
+/** 다음 연습 집중 포인트. 이 영역에서 가장 눈에 띄어야 해서 진한 면(ink) 위에 둔다. */
+function FocusTip({ tip }: { tip: string }) {
+  return (
+    <aside className="ins-focus" aria-labelledby="mp-insights-focus-h">
+      <svg className="ins-focus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4" /><circle cx="12" cy="12" r="0.6" fill="currentColor" />
+      </svg>
+      <div className="ins-focus-body">
+        <h3 id="mp-insights-focus-h" className="ins-focus-title t-caption">다음 연습 집중 포인트</h3>
+        <p className="t-title">{tip}</p>
+      </div>
+    </aside>
   );
 }
 
