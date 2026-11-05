@@ -1,7 +1,7 @@
 import type { UseQueryResult } from '@tanstack/react-query';
 import { Bar, BarChart, CartesianGrid, Rectangle, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import type { MyStats } from '@/api/types';
-import { minutesLabel } from '@/lib/format';
+import { PURPOSE_LABEL, minutesLabel } from '@/lib/format';
 import { QueryView, SectionFrame, dash } from './shared';
 import '@/styles/mypage/activity.css';
 
@@ -17,6 +17,7 @@ export function ActivitySection({ stats }: ActivitySectionProps) {
         {(d) => (
           <div className="mp-act">
             <WeeklyActivity weeks={d.weeklyActivity} />
+            <PurposeBreakdown rows={d.purposeBreakdown} />
           </div>
         )}
       </QueryView>
@@ -105,5 +106,34 @@ function WeekTooltip({ active, payload }: { active?: boolean; payload?: { payloa
         <div><dt>평균 점수</dt><dd>{dash(w.averageScore, '점')}</dd></div>
       </dl>
     </div>
+  );
+}
+
+function PurposeBreakdown({ rows }: { rows: MyStats['purposeBreakdown'] }) {
+  return (
+    <section className="mp-act-block" aria-labelledby="mp-purpose-h">
+      <div className="mp-act-head">
+        <h3 id="mp-purpose-h" className="t-title">목적별 기록</h3>
+      </div>
+      {rows.length === 0 ? (
+        <p className="mp-act-empty t-small c-3">아직 목적별 기록이 없어요</p>
+      ) : (
+        // 서버가 회차 수 많은 순으로 정렬해 준다(명세 4장). 순서를 바꾸지 않는다.
+        <table className="mp-ptable">
+          <thead>
+            <tr><th scope="col">목적</th><th scope="col" className="r">연습 수</th><th scope="col" className="r">평균 점수</th></tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.purpose}>
+                <th scope="row">{PURPOSE_LABEL[r.purpose]}</th>
+                <td className="r">{r.analysisCount}회</td>
+                <td className="r">{dash(r.averageScore, '점')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
   );
 }

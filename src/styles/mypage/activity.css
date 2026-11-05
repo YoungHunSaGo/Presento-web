@@ -4,6 +4,7 @@
 .mp-act-block { display: grid; gap: var(--s-4); min-width: 0; margin: 0; }
 .mp-act-head { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; min-height: 26px; }
 .mp-act-num { font-family: var(--font-data); font-weight: 700; color: var(--text); font-variant-numeric: tabular-nums; }
+.mp-act-empty { padding: var(--s-6) 0; border-top: 1px solid var(--line-2); }
 
 /* 주간 활동 */
 .mp-weekly-sum { margin: 0; }
@@ -15,9 +16,19 @@
 .mp-weekly-tip dt { font-size: 13px; line-height: 20px; color: var(--text-3); }
 .mp-weekly-tip dd { margin: 0; font-family: var(--font-data); font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
 
+/* 목적별 기록: 대시보드 .ptable 과 같은 선·글꼴. 줄을 눌러 이동하지 않으므로 hover 는 두지 않는다. */
+.mp-ptable { width: 100%; border-collapse: separate; border-spacing: 0; table-layout: fixed; }
+.mp-ptable th, .mp-ptable td { padding: 14px 0; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: left; }
+.mp-ptable thead th { font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-3); padding: 8px 0; border-bottom-color: var(--line-2); }
+.mp-ptable thead th:nth-child(n+2) { width: 96px; }
+.mp-ptable tbody th { font-size: 16px; line-height: 24px; font-weight: 700; color: var(--text); padding-right: var(--s-4); overflow-wrap: anywhere; }
+.mp-ptable td { font-size: 15px; line-height: 22px; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+.mp-ptable .r { text-align: right; }
+
 @media (max-width: 860px) {
   .mp-act { grid-template-columns: minmax(0, 1fr); }
 }
 @media (max-width: 480px) {
   .mp-weekly-chart { height: 180px; }
+  .mp-ptable thead th:nth-child(n+2) { width: 76px; }
 }
