@@ -20,7 +20,8 @@ export const clock = (sec: number) => {
 };
 export const shortDuration = (sec: number) => `${Math.floor(sec / 60)}:${String(Math.round(sec % 60)).padStart(2, '0')}`;
 export const minutesLabel = (sec: number) => {
-  const m = Math.floor(sec / 60); const s = Math.round(sec % 60);
+  // 초를 먼저 반올림해야 239.6초가 '3분 60초'가 아니라 '4분'이 된다.
+  const t = Math.round(sec); const m = Math.floor(t / 60); const s = t % 60;
   return s ? `${m}분 ${s}초` : `${m}분`;
 };
 export const dateTimeLabel = (iso: string) => {
