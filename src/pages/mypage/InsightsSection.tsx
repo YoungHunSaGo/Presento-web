@@ -104,9 +104,9 @@ function InsightCard({ item, rank }: { item: Insight; rank: number }) {
         <p className="ins-label t-body-strong">{item.label}</p>
         {/* UP 은 항상 '좋아짐'(추임새가 줄어도 UP). TrendMark 가 화살표·색·읽기 문구를 맡고,
             화살표만으로는 방향의 뜻(위=좋아짐)이 헷갈릴 수 있어 같은 말을 글자로도 보인다. change 가 null 이면 숫자 없이.
-            TODO(spec): FLAT 이어도 change 가 오면(예: +2) 숫자를 함께 보인다. '변화 없음 +2'가 어색하면 FLAT 일 때 숫자를 뺄지 확인 필요. */}
+            FLAT 은 ±5점 미만이라 change 가 와도(예: +2) 숫자를 빼서 '변화 없음 +2'처럼 서로 어긋나 보이지 않게 한다. */}
         <span className="ins-trend">
-          <TrendMark trend={item.trend} change={item.change} />
+          <TrendMark trend={item.trend} change={item.trend === 'FLAT' ? null : item.change} />
           <span className="t-caption c-3" aria-hidden="true">{TREND_LABEL[item.trend]}</span>
         </span>
       </div>
