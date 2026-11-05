@@ -2,8 +2,13 @@
 .auth { min-height: 100vh; position: relative; display: grid; place-items: center; padding: 120px 80px 80px; }
 .auth-logo { position: absolute; top: 44px; left: 80px; }
 .auth-grid { display: grid; grid-template-columns: minmax(0, 590px) 1px 408px; gap: 33px; align-items: center; width: 100%; max-width: 1065px; }
-.auth-pitch { display: grid; gap: 22px; }
+/* 열을 minmax(0, 1fr)로 두어야 480px 데모가 칸을 밀어내지 않고 칸 폭에 맞춰 줄어든다. */
+.auth-pitch { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
 .auth-pitch .t-body { max-width: 560px; }
+/* 두 칸일 때 왼쪽 칸은 100vw - 635px. 첫 줄(56px에서 405px)이 한 줄에 들어가도록 칸 폭에 맞춰 줄인다. */
+@media (min-width: 861px) {
+  .auth-pitch .t-display { font-size: clamp(30px, calc(13.5vw - 88px), 56px); line-height: 1.15; }
+}
 .auth-demo { margin: 20px 0 0; width: 480px; max-width: 100%; display: grid; gap: 0; }
 .auth-demo-frame { position: relative; height: 168px; border-radius: 14px; background: var(--video); box-shadow: var(--shadow-media); padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; }
 .auth-demo-cap { margin: 0; text-align: center; color: #fff; font-size: 18px; line-height: 26px; font-weight: 500; padding-bottom: 10px; }
