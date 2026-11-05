@@ -33,7 +33,7 @@ export function AuthPage({ mode }: { mode: 'login' | 'signup' }) {
       <div className="auth-logo"><Logo size={28} /></div>
       <div className="auth-grid">
         <section className="auth-pitch" aria-label="Presento 소개">
-          <h1 className="t-display">고쳐야 할 장면만<br />잘라서 다시 보여줍니다.</h1>
+          <h1 className="t-display">오직 고쳐야 할 장면만.</h1>
           <p className="t-body c-2">발표 영상을 올리면 말이 빨라진 곳, 멈춘 곳, 시선이 흔들린 곳을 클립으로 나눕니다.</p>
           <figure className="auth-demo" aria-hidden="true">
             <div className="auth-demo-frame">
