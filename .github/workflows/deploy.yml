@@ -1,0 +1,34 @@
+# main에 올라가면 Vercel 프로덕션(presento2)으로 배포한다.
+# 조직 비공개 저장소는 Vercel 무료 플랜에서 Git 연동이 안 돼서 CLI로 올린다.
+# 필요한 Secret: VERCEL_TOKEN (Vercel → Account Settings → Tokens에서 만든 값)
+name: Deploy to Vercel
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-production
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: team_OdRRoC4zPnh0R2QxKo6SVURb
+  VERCEL_PROJECT_ID: prj_CN6OIHQfaOEuRv68QYd2XhniSoyy
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Vercel 환경 변수 받기
+        run: npx --yes vercel@65 pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: 빌드
+        run: npx --yes vercel@65 build --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: 배포
+        run: npx --yes vercel@65 deploy --prebuilt --prod --token=${{ secrets.VERCEL_TOKEN }}
