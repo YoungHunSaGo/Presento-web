@@ -16,6 +16,7 @@ export function AppLayout() {
         <nav className="topbar-nav" aria-label="주 메뉴">
           <NavLink to="/" end className={({ isActive }) => `topnav${isActive ? ' on' : ''}`}>내 발표</NavLink>
           <NavLink to="/presentations/new" className={({ isActive }) => `topnav${isActive ? ' on' : ''}`}>새 발표</NavLink>
+          <NavLink to="/mypage" className={({ isActive }) => `topnav${isActive ? ' on' : ''}`}>마이페이지</NavLink>
         </nav>
         <div className="topbar-user">
           <span className="t-body-strong">{user?.nickname ?? ''}</span>

@@ -1,6 +1,9 @@
 import { http, HttpResponse, delay } from 'msw';
-import type { AnalysisState, Presentation } from '@/api/types';
-import { mockDetail, mockHistory, mockPresentations, mockReport, mockReportAttempt1, mockUser } from './data';
+import type { AnalysisState, MyInsights, MyStats, Period, Presentation, Purpose } from '@/api/types';
+import {
+  filterSeed, insightsFor, mockDetail, mockHistory, mockInsights, mockInsightsInsufficient, mockPresentations, mockReport, mockReportAttempt1,
+  mockStats, mockTimelineSeed, mockUser, statsFrom,
+} from './data';
 
 const B = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8000/api/v1';
 const err = (status: number, code: string, message: string) => HttpResponse.json({ error: { code, message, details: null } }, { status });
@@ -12,6 +15,40 @@ const analyses = new Map<string, AnalysisState>();
 // 업로드 URL로 PUT이 끝난 영상 키(videos/<analysisId>). 서버처럼 N2에서 업로드 여부를 본다.
 const uploadedVideos = new Set<string>();
 const STAGE_AT = (p: number) => (p < 10 ? 'EXTRACTING_AUDIO' : p < 40 ? 'TRANSCRIBING' : p < 65 ? 'ANALYZING_NONVERBAL' : p < 80 ? 'ANALYZING_CONTENT' : 'GENERATING_FEEDBACK') as AnalysisState['stage'];
+
+// ---- 마이페이지 M1–M3 ----
+// 개발용 전환: 화면 주소에 ?mock= 를 붙이면 목업 응답이 바뀐다(MSW 핸들러는 페이지에서 돌아 location 이 화면 주소다).
+//   ?mock=insufficient     완료 2회. M2 가 INSUFFICIENT_DATA(명세 '데이터 부족 예'), M1·M3 은 2회분
+//   ?mock=empty            완료 0회 빈 상태
+//   ?mock=error            세 API 모두 500 INTERNAL_ERROR
+//   ?mock=error-stats | error-insights | error-timeline   그 API 하나만 500 (나머지 영역은 그려지는지 확인용)
+// 필터도 목업 결과를 바꾼다: 목적=수업 발표는 약점 없음, 목적=면접은 강점 없음, 목적=피칭·대회·기타는 완료 0회.
+// 기간은 목업 회차가 모두 최근 2주 안이라 from·period 값만 바뀐다.
+const PERIODS: Period[] = ['30d', '90d', 'all'];
+const PURPOSES: Purpose[] = ['INTERVIEW', 'CLASS', 'PITCH', 'ETC'];
+// node(setupServer)에는 location 이 없어 전환 없이 기본 목업으로 동작한다.
+const mockMode = () => new URLSearchParams(globalThis.location?.search ?? '').get('mock');
+type MypageQuery = { period: Period; purpose: Purpose | null; limit: number };
+/** 명세 3장 공통 쿼리 검사. 틀리면 400 응답을, 맞으면 읽은 값을 돌려준다. 빈 purpose(`purpose=`)는 전체로 본다. */
+function mypageQuery(req: Request, api: 'stats' | 'insights' | 'timeline'): Response | MypageQuery {
+  if (!authed(req)) return err(401, 'UNAUTHORIZED', '다시 로그인해 주세요.');
+  const mode = mockMode();
+  if (mode === 'error' || mode === `error-${api}`) return err(500, 'INTERNAL_ERROR', '잠시 후 다시 시도해 주세요.');
+  const q = new URL(req.url).searchParams;
+  const period = (q.get('period') ?? 'all') as Period; const purpose = (q.get('purpose') || null) as Purpose | null;
+  const limitRaw = q.get('limit') ?? '50'; const limit = Number(limitRaw);
+  if (!PERIODS.includes(period)) return err(400, 'VALIDATION_ERROR', 'period 는 30d, 90d, all 중 하나여야 해요.');
+  if (purpose && !PURPOSES.includes(purpose)) return err(400, 'VALIDATION_ERROR', 'purpose 는 INTERVIEW, CLASS, PITCH, ETC 중 하나여야 해요.');
+  if (!/^\d+$/.test(limitRaw) || limit < 1 || limit > 200) return err(400, 'VALIDATION_ERROR', 'limit 은 1~200 사이여야 해요.');
+  return { period, purpose, limit };
+}
+// 전환·필터에 맞는 완료 회차 목록
+const mypageSeed = ({ period, purpose }: MypageQuery) => {
+  const mode = mockMode();
+  if (mode === 'empty') return [];
+  if (mode === 'insufficient') return mockTimelineSeed.slice(-2);
+  return filterSeed(period, purpose);
+};
 
 export const handlers = [
   http.post(`${B}/auth/signup`, async ({ request }) => {
@@ -27,6 +64,32 @@ export const handlers = [
     return HttpResponse.json({ accessToken: 'mock-token', user: { ...mockUser, email: body.email } });
   }),
   http.get(`${B}/users/me`, ({ request }) => (authed(request) ? HttpResponse.json(mockUser) : err(401, 'UNAUTHORIZED', '다시 로그인해 주세요.'))),
+  // 경로가 /users/me 아래라 위 핸들러와 겹치지 않게 각각 정확한 경로로 둔다.
+  http.get(`${B}/users/me/stats`, async ({ request }) => {
+    const q = mypageQuery(request, 'stats'); if (q instanceof Response) return q;
+    await delay(300);
+    const seed = mypageSeed(q);
+    // 필터 없는 기본 요청은 명세 예시 그대로
+    const body: MyStats = seed.length === mockTimelineSeed.length && q.period === 'all' ? mockStats : statsFrom(seed, q.period);
+    return HttpResponse.json(body);
+  }),
+  http.get(`${B}/users/me/insights`, async ({ request }) => {
+    const q = mypageQuery(request, 'insights'); if (q instanceof Response) return q;
+    await delay(450);
+    const n = mypageSeed(q).length;
+    const body: MyInsights = mockMode() === 'insufficient' ? mockInsightsInsufficient
+      : q.purpose === 'CLASS' ? insightsFor(n, { FILLER: { score: 71, trend: 'UP', change: 9 }, PACE: { score: 72, trend: 'UP', change: 5 } })
+        : q.purpose === 'INTERVIEW' ? insightsFor(n, { GAZE: { score: 79, trend: 'FLAT', change: -2 } })
+          : n === mockTimelineSeed.length ? mockInsights : insightsFor(n);
+    return HttpResponse.json(body);
+  }),
+  http.get(`${B}/users/me/score-timeline`, async ({ request }) => {
+    const q = mypageQuery(request, 'timeline'); if (q instanceof Response) return q;
+    await delay(350);
+    const seed = mypageSeed(q);
+    // 최근 limit 개를 오래된 순으로. total 은 자르기 전 개수.
+    return HttpResponse.json({ items: seed.slice(-q.limit).map(({ practiceSec: _, ...item }) => item), total: seed.length });
+  }),
 
   http.get(`${B}/presentations`, () => HttpResponse.json({ items: presentations, page: 1, size: 20, total: presentations.length })),
   http.post(`${B}/presentations`, async ({ request }) => {

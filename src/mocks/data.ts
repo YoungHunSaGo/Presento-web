@@ -1,5 +1,8 @@
 // 명세 4·5장 예시 JSON을 바탕으로 한 목업 데이터. 필드는 명세 그대로이고, 배열 항목만 시연용으로 늘렸다.
-import type { Attempt, Feedback, HistoryItem, Presentation, PresentationDetail, Report, Segment, User, Word } from '@/api/types';
+import type {
+  Attempt, Category, Feedback, Grade, HistoryItem, Insight, Metric, MyInsights, MyStats, Period, Presentation, PresentationDetail, Purpose, Report,
+  ScoreTimelineItem, Segment, Trend, User, Word,
+} from '@/api/types';
 
 export const mockUser: User = { id: 'u-1a2b', email: 'student@ycu.ac.kr', nickname: '영훈', createdAt: '2026-11-03T17:04:00+09:00' };
 
@@ -128,3 +131,134 @@ export const mockReportAttempt1: Report = {
   ],
   slideCoverage: null,
 };
+
+// ---- 마이페이지 M1–M3 목업 (presento-mypage-spec.md 4장) ----
+// 완료 회차 12개가 원본이다. 필터가 없을 때(period=all, 목적 전체)는 명세 예시 JSON을 그대로 주고,
+// 목적 필터·데이터 부족 경우는 이 목록에서 서버 규칙대로 계산한다.
+// 주별 합계(5회 1210.3초 72점 / 7회 1664.2초 76점), 목적별 기록, 등급 분포, 연속 3일, 최근 변화 +6은 예시와 맞춰 두었다.
+export const MYPAGE_NOW = '2026-11-05T20:00:00+09:00';
+type TimelineSeed = ScoreTimelineItem & { practiceSec: number };
+const tl = (analysisId: string, presentationId: string, presentationTitle: string, purpose: Purpose, attemptNo: number, createdAt: string,
+  overallScore: number, grade: Grade, D: number, N: number, C: number, practiceSec: number): TimelineSeed =>
+  ({ analysisId, presentationId, presentationTitle, purpose, attemptNo, createdAt: `${createdAt}:00+09:00`, overallScore, grade, scores: { DELIVERY: D, NONVERBAL: N, CONTENT: C }, practiceSec });
+// 오래된 순. a-1c4f·a-9d21 은 기존 발표 상세·리포트 목업과 같은 회차라 점을 누르면 그 리포트가 열린다(다른 id 도 리포트 목업이 열린다).
+export const mockTimelineSeed: TimelineSeed[] = [
+  tl('a-3f10', 'p-6b42', '삼성 SW 직무 면접', 'INTERVIEW', 1, '2026-10-26T21:10', 78, 'B', 73, 80, 84, 238.1),
+  tl('a-4c22', 'p-6b42', '삼성 SW 직무 면접', 'INTERVIEW', 2, '2026-10-27T22:05', 79, 'B', 74, 80, 84, 251.4),
+  tl('a-5e31', 'p-3e9a', '전공 세미나 발표', 'CLASS', 1, '2026-10-29T19:30', 84, 'B+', 80, 82, 86, 226.8),
+  tl('a-6a47', 'p-a817', '자기소개 1분 스피치', 'INTERVIEW', 1, '2026-10-30T23:00', 69, 'C+', 63, 72, 78, 262.0),
+  tl('a-7b58', 'p-a817', '자기소개 1분 스피치', 'INTERVIEW', 2, '2026-10-31T23:40', 48, 'D', 46, 55, 60, 232.0),
+  tl('a-8d63', 'p-3e9a', '전공 세미나 발표', 'CLASS', 2, '2026-11-03T10:20', 86, 'B+', 82, 84, 88, 205.3),
+  tl('a-1c4f', 'p-7f3c', '캡스톤 중간 발표', 'CLASS', 1, '2026-11-03T21:00', 64, 'C+', 58, 70, 65, 312.0),
+  tl('a-2e70', 'p-3e9a', '전공 세미나 발표', 'CLASS', 3, '2026-11-04T09:10', 57, 'C', 56, 62, 66, 198.6),
+  tl('a-0f84', 'p-3e9a', '전공 세미나 발표', 'CLASS', 4, '2026-11-04T13:00', 76, 'B', 71, 78, 83, 221.0),
+  tl('a-b392', 'p-3e9a', '전공 세미나 발표', 'CLASS', 5, '2026-11-04T22:30', 77, 'B', 72, 79, 84, 214.7),
+  tl('a-c4a5', 'p-6b42', '삼성 SW 직무 면접', 'INTERVIEW', 3, '2026-11-05T09:30', 88, 'A', 85, 86, 89, 225.2),
+  tl('a-9d21', 'p-7f3c', '캡스톤 중간 발표', 'CLASS', 3, '2026-11-05T20:00', 82, 'B+', 80, 84, 81, 287.4),
+];
+
+const day = (iso: string) => iso.slice(0, 10); // +09:00 문자열의 앞 10자리 = 한국 날짜
+const addDays = (ymd: string, n: number) => new Date(Date.parse(`${ymd}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+const avg = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
+const sum1 = (xs: number[]) => Math.round(xs.reduce((a, b) => a + b, 0) * 10) / 10;
+// 최근 12주의 월요일(2026-08-17 ~ 2026-11-02), 오래된 순
+const WEEKS = Array.from({ length: 12 }, (_, i) => addDays('2026-11-02', (i - 11) * 7));
+const weekOf = (ymd: string) => addDays(ymd, -((new Date(`${ymd}T00:00:00Z`).getUTCDay() + 6) % 7));
+
+// '오늘 포함 최근 30일·90일'의 시작 시각
+export const periodFrom = (period: Period) => (period === 'all' ? null : `${addDays(day(MYPAGE_NOW), period === '30d' ? -29 : -89)}T00:00:00+09:00`);
+export const filterSeed = (period: Period, purpose: Purpose | null) => {
+  const from = periodFrom(period);
+  return mockTimelineSeed.filter((x) => (!purpose || x.purpose === purpose) && (!from || day(x.createdAt) >= day(from)));
+};
+
+/** 회차 목록에서 M1 응답을 계산한다(명세 4장 M1 표의 규칙). */
+export function statsFrom(items: TimelineSeed[], period: Period): MyStats {
+  const scores = items.map((x) => x.overallScore);
+  const best = items.reduce<TimelineSeed | null>((b, x) => (!b || x.overallScore > b.overallScore ? x : b), null);
+  const s10 = scores.slice(-10);
+  const recentChange = items.length >= 6 ? avg(s10.slice(-5))! - avg(s10.slice(0, -5))! : null;
+  const days = new Set(items.map((x) => day(x.createdAt))); const today = day(MYPAGE_NOW);
+  let cur = days.has(today) ? today : addDays(today, -1); let streakDays = 0;
+  while (days.has(cur)) { streakDays++; cur = addDays(cur, -1); }
+  const gradeDistribution: Record<Grade, number> = { 'A+': 0, A: 0, 'B+': 0, B: 0, 'C+': 0, C: 0, D: 0 };
+  items.forEach((x) => { gradeDistribution[x.grade]++; });
+  const catAvg = (c: Category) => avg(items.map((x) => x.scores[c]));
+  return {
+    period, from: periodFrom(period), to: MYPAGE_NOW,
+    presentationCount: new Set(items.map((x) => x.presentationId)).size, analysisCount: items.length,
+    totalPracticeSec: sum1(items.map((x) => x.practiceSec)),
+    averageScore: avg(scores), bestScore: best?.overallScore ?? null, bestAnalysisId: best?.analysisId ?? null, recentChange, streakDays,
+    categoryAverages: { DELIVERY: catAvg('DELIVERY'), NONVERBAL: catAvg('NONVERBAL'), CONTENT: catAvg('CONTENT') },
+    gradeDistribution,
+    purposeBreakdown: [...new Set(items.map((x) => x.purpose))]
+      .map((purpose) => { const xs = items.filter((x) => x.purpose === purpose); return { purpose, analysisCount: xs.length, averageScore: avg(xs.map((x) => x.overallScore)) }; })
+      .sort((a, b) => b.analysisCount - a.analysisCount),
+    weeklyActivity: WEEKS.map((weekStart) => {
+      const xs = items.filter((x) => weekOf(day(x.createdAt)) === weekStart);
+      return { weekStart, analysisCount: xs.length, practiceSec: sum1(xs.map((x) => x.practiceSec)), averageScore: avg(xs.map((x) => x.overallScore)) };
+    }),
+  };
+}
+
+// 명세 M1 예시 그대로. 예시에서 줄인 주는 0회로 채워 항상 12개.
+// TODO(spec): 예시의 bestAnalysisId 는 a-9d21(최고 88점)인데 M3 예시와 기존 목업의 a-9d21 은 82점이다. 서버 실제 응답으로 확인 필요.
+export const mockStats: MyStats = {
+  period: 'all', from: null, to: MYPAGE_NOW,
+  presentationCount: 4, analysisCount: 12, totalPracticeSec: 2874.5, averageScore: 74, bestScore: 88, bestAnalysisId: 'a-9d21', recentChange: 6, streakDays: 3,
+  categoryAverages: { DELIVERY: 70, NONVERBAL: 76, CONTENT: 79 },
+  gradeDistribution: { 'A+': 0, A: 1, 'B+': 3, B: 4, 'C+': 2, C: 1, D: 1 },
+  purposeBreakdown: [{ purpose: 'CLASS', analysisCount: 7, averageScore: 75 }, { purpose: 'INTERVIEW', analysisCount: 5, averageScore: 72 }],
+  weeklyActivity: WEEKS.map((weekStart) => (weekStart === '2026-10-26' ? { weekStart, analysisCount: 5, practiceSec: 1210.3, averageScore: 72 }
+    : weekStart === '2026-11-02' ? { weekStart, analysisCount: 7, practiceSec: 1664.2, averageScore: 76 }
+      : { weekStart, analysisCount: 0, practiceSec: 0, averageScore: null })),
+};
+
+const ins = (metric: Metric, category: Category, label: string, score: number, trend: Trend, change: number | null, sampleCount: number, valueText: string, message: string): Insight =>
+  ({ metric, category, label, score, trend, change, sampleCount, valueText, message });
+// 명세 예시의 세 항목(PACE·FILLER·GAZE)에 나머지 항목을 더했다. 강점(>=80)·약점(<70) 판정이 예시와 같도록 나머지는 70~79점이거나 표본 1회다.
+// LANGUAGE 는 '측정 안 됨' 경우를 보려고 뺐다. CLARITY 는 표본 4회 미만이라 FLAT·change null.
+const METRICS: Insight[] = [
+  ins('PACE', 'DELIVERY', '말 속도', 63, 'FLAT', 2, 10, '분당 424음절', '말이 조금 빨라요. 핵심 문장 앞에서 속도를 늦춰 보세요.'),
+  ins('FILLER', 'DELIVERY', '추임새', 58, 'UP', 12, 10, '분당 4.8회', "'약간', '이제'가 자주 나와요. 문장 사이에 말 대신 잠깐 쉬어 보세요."),
+  ins('SILENCE', 'DELIVERY', '긴 침묵', 74, 'FLAT', -1, 10, '분당 0.8회', '긴 침묵은 드물어요. 문장 사이 쉼을 지금처럼 짧게 유지해 보세요.'),
+  ins('TIME', 'DELIVERY', '시간 관리', 77, 'UP', 6, 7, '제한 시간의 92% 사용', '제한 시간 안에 마무리하고 있어요.'),
+  ins('GAZE', 'NONVERBAL', '시선', 89, 'UP', 8, 10, '정면 79%', '청중을 안정적으로 바라보고 있어요.'),
+  ins('POSTURE', 'NONVERBAL', '자세', 78, 'FLAT', 3, 10, '안정성 86%', '자세가 대체로 안정적이에요.'),
+  ins('GESTURE', 'NONVERBAL', '제스처', 72, 'DOWN', -7, 6, '분당 6.2회', '제스처가 조금 줄었어요. 핵심을 말할 때 손을 함께 써 보세요.'),
+  ins('STRUCTURE', 'CONTENT', '구조', 79, 'UP', 5, 10, '회차당 지적 1.2건', '도입-본론-결론 흐름이 잡혀 가고 있어요.'),
+  ins('CLARITY', 'CONTENT', '명확성', 81, 'FLAT', null, 1, '회차당 지적 0.8건', '핵심 주장을 한 문장으로 먼저 말해 보세요.'),
+];
+const byMetric = (m: Metric) => METRICS.find((x) => x.metric === m)!;
+
+// 명세 M2 예시 그대로(metrics 는 측정된 전체 항목, topFillers·frequentFeedbackTypes 는 5개까지 늘림)
+export const mockInsights: MyInsights = {
+  status: 'READY', analysisCount: 12, requiredCount: 3, basedOnRecent: 10,
+  strengths: [byMetric('GAZE')],
+  weaknesses: [byMetric('FILLER'), byMetric('PACE')],
+  metrics: METRICS,
+  focusTip: '다음 연습에서는 추임새를 분당 1회 이하로 줄이는 데 집중해 보세요.',
+  topFillers: [{ word: '약간', count: 21 }, { word: '이제', count: 14 }, { word: '음', count: 9 }, { word: '그', count: 6 }, { word: '뭐랄까', count: 4 }],
+  frequentFeedbackTypes: [
+    { type: 'FILLER', label: '추임새', count: 9 }, { type: 'PACE_FAST', label: '말 속도 빠름', count: 6 }, { type: 'GAZE_AWAY', label: '시선 이탈', count: 4 },
+    { type: 'STRUCTURE', label: '구조 미흡', count: 3 }, { type: 'OVER_TIME', label: '시간 초과', count: 2 },
+  ],
+};
+// 명세 M2 '데이터 부족 예' 그대로
+export const mockInsightsInsufficient: MyInsights = {
+  status: 'INSUFFICIENT_DATA', analysisCount: 2, requiredCount: 3, basedOnRecent: 2, strengths: [], weaknesses: [], metrics: [], focusTip: null,
+  topFillers: [{ word: '음', count: 3 }], frequentFeedbackTypes: [],
+};
+
+/** 필터를 걸었을 때의 M2. 항목 점수를 조금 바꾸고 강점·약점은 서버 판정 규칙(>=80 / <70, 표본 2회 이상)대로 다시 고른다. */
+export function insightsFor(count: number, patch: Partial<Record<Metric, Partial<Insight>>> = {}): MyInsights {
+  if (count < 3) return { ...mockInsightsInsufficient, analysisCount: count, basedOnRecent: count, topFillers: count ? mockInsightsInsufficient.topFillers : [] };
+  const metrics = METRICS.map((m) => ({ ...m, ...patch[m.metric], sampleCount: Math.min(m.sampleCount, count) }));
+  const judged = metrics.filter((m) => m.sampleCount >= 2);
+  const weaknesses = judged.filter((m) => m.score < 70).sort((a, b) => a.score - b.score).slice(0, 3);
+  return {
+    ...mockInsights, analysisCount: count, basedOnRecent: Math.min(count, 10), metrics, weaknesses,
+    strengths: judged.filter((m) => m.score >= 80).sort((a, b) => b.score - a.score).slice(0, 3),
+    focusTip: weaknesses.length ? mockInsights.focusTip : null,
+  };
+}

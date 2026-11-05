@@ -10,6 +10,7 @@ const PresentationDetailPage = lazy(() => import('@/pages/PresentationDetailPage
 const RecordPage = lazy(() => import('@/pages/RecordPage').then((m) => ({ default: m.RecordPage })));
 const ProgressPage = lazy(() => import('@/pages/ProgressPage').then((m) => ({ default: m.ProgressPage })));
 const ReportPage = lazy(() => import('@/pages/ReportPage').then((m) => ({ default: m.ReportPage })));
+const MyPage = lazy(() => import('@/pages/MyPage').then((m) => ({ default: m.MyPage })));
 const page = (el: JSX.Element) => <Suspense fallback={<main className="page"><Loading /></main>}>{el}</Suspense>;
 
 function GuestOnly({ children }: { children: JSX.Element }) { const { isAuthed } = useAuth(); return isAuthed ? <Navigate to="/" replace /> : children; }
@@ -29,6 +30,7 @@ export default function App() {
           <Route path="/presentations/:id/record" element={page(<RecordPage />)} />
           <Route path="/analyses/:id/progress" element={page(<ProgressPage />)} />
           <Route path="/analyses/:id" element={page(<ReportPage />)} />
+          <Route path="/mypage" element={page(<MyPage />)} />
           <Route path="*" element={<main className="page page-center"><div className="stack" style={{ gap: 16, alignItems: 'center' }}><h1 className="t-h1">페이지를 찾을 수 없습니다</h1><Link className="btn btn-primary" to="/">내 발표로 가기</Link></div></main>} />
         </Route>
       </Route>

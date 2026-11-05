@@ -48,6 +48,7 @@ npm run dev                  # http://localhost:5173
 | `/presentations/:id/record` | 영상 입력: 파일 업로드 / 웹캠 녹화(MediaRecorder) | N1, S3 PUT, N2 |
 | `/analyses/:id/progress` | 분석 진행: 2초 폴링, 실패 안내 | N3 |
 | `/analyses/:id` | 피드백 리포트 | N4, N5 |
+| `/mypage` | 마이페이지: 요약·점수 추이·강점과 약점·항목별 점수·활동 (`docs/presento-mypage-spec.md`) | A3, M1, M2, M3 |
 
 리포트 핵심 동작
 - 근거 타임라인의 클립이나 클립 목록을 누르면 영상이 그 구간 `start`로 이동해 재생됩니다.

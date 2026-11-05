@@ -1,7 +1,7 @@
 import { api } from './client';
 import type {
-  AnalysisState, AuthResponse, CreateAnalysisRequest, CreateAnalysisResponse, HistoryItem, Paged, Presentation,
-  PresentationDetail, Purpose, Report, StartAnalysisResponse, UploadTicket, User,
+  AnalysisState, AuthResponse, CreateAnalysisRequest, CreateAnalysisResponse, HistoryItem, MyInsights, MyStats, Paged, Period,
+  Presentation, PresentationDetail, Purpose, Report, ScoreTimeline, StartAnalysisResponse, UploadTicket, User,
 } from './types';
 
 // A1 ~ N6 (명세 3장)
@@ -30,3 +30,14 @@ export const getReport = (analysisId: string) => api.get<Report>(`/analyses/${an
 export const getVideoUrl = (analysisId: string) =>
   api.get<{ videoUrl: string; expiresInSec: number }>(`/analyses/${analysisId}/video-url`).then((r) => r.data);
 export const deleteAnalysis = (analysisId: string) => api.delete(`/analyses/${analysisId}`).then(() => undefined);
+
+// M1 ~ M3 (presento-mypage-spec.md 3·4장). purpose 가 null(목적 전체)이면 쿼리에서 아예 뺀다.
+// axios 는 값이 undefined 인 params 를 보내지 않는다.
+const mypageParams = (period: Period, purpose: Purpose | null) => ({ period, purpose: purpose ?? undefined });
+export const getMyStats = (period: Period, purpose: Purpose | null) =>
+  api.get<MyStats>('/users/me/stats', { params: mypageParams(period, purpose) }).then((r) => r.data);
+export const getMyInsights = (period: Period, purpose: Purpose | null) =>
+  api.get<MyInsights>('/users/me/insights', { params: mypageParams(period, purpose) }).then((r) => r.data);
+// limit 은 1~200, 서버 기본 50. 최근 limit 개를 오래된 순으로 준다.
+export const getScoreTimeline = (period: Period, purpose: Purpose | null, limit = 50) =>
+  api.get<ScoreTimeline>('/users/me/score-timeline', { params: { ...mypageParams(period, purpose), limit } }).then((r) => r.data);
