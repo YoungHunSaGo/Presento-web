@@ -124,6 +124,7 @@ flowchart LR
 | `/presentations/:id/record` | 영상 입력 | 탭 2개: 파일 업로드(드래그 앤 드롭) / 웹 녹화(카메라 미리보기, 녹화 타이머, 제한 시간 표시), 업로드 진행률 | N1, S3 PUT, N2 |
 | `/analyses/:id/progress` | 분석 진행 | 단계별 체크리스트, 진행 막대, 실패 시 에러 문구와 다시 올리기 버튼 | N3 |
 | `/analyses/:id` | 피드백 리포트 | 왼쪽 영상 플레이어 + 타임라인 마커, 오른쪽 탭(요약·대본·피드백·개선 스크립트·예상 질문·슬라이드), "다시 연습" 버튼 | N4, N5 |
+| `/mypage` | 마이페이지 | 요약 카드, 점수 추이, 강점·약점, 항목별 점수, 주간 활동 (상세: `presento-mypage-spec.md`) | A3, M1, M2, M3 |
 
 ### 리포트 화면 핵심 동작
 
@@ -156,6 +157,11 @@ API는 16개이고, 영상 분석의 핵심 흐름은 **"업로드 URL 발급 �
 | N4 | 분석 | GET | `/analyses/{analysisId}/report` | 피드백 리포트 조회 | O |
 | N5 | 분석 | GET | `/analyses/{analysisId}/video-url` | 영상 재생용 URL 발급 | O |
 | N6 | 분석 | DELETE | `/analyses/{analysisId}` | 회차 삭제 | O |
+| M1 | 마이페이지 | GET | `/users/me/stats` | 요약 통계, 카테고리 평균, 주간 활동, 목적별 기록 | O |
+| M2 | 마이페이지 | GET | `/users/me/insights` | 강점·약점, 항목별 점수, 추임새·피드백 순위 | O |
+| M3 | 마이페이지 | GET | `/users/me/score-timeline` | 발표 구분 없이 회차별 점수 추이 | O |
+
+> M1–M3(마이페이지 `/mypage`)은 이후에 추가되어 API가 19개가 됐다. 화면 기획·쿼리 파라미터·응답 상세는 [`presento-mypage-spec.md`](./presento-mypage-spec.md)를 따른다.
 
 분석 진행 상태는 **N3을 2초마다 폴링**하는 방식으로 구현한다. 실시간 이벤트(SSE)는 기본 기능이 끝난 뒤 여유가 있으면 추가한다.
 
