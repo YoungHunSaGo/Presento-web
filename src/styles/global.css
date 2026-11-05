@@ -35,7 +35,7 @@ button { font: inherit; color: inherit; }
 .t-data { font-family: var(--font-data); font-size: 13px; line-height: 20px; font-weight: 500; font-variant-numeric: tabular-nums; }
 .t-data-strong { font-family: var(--font-data); font-size: 20px; line-height: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
 .t-data-large { font-family: var(--font-data); font-size: 40px; line-height: 44px; font-weight: 700; font-variant-numeric: tabular-nums; }
-.c-2 { color: var(--text-2); } .c-3 { color: var(--text-3); } .c-ev { color: var(--evidence); } .c-err { color: var(--error); }
+.c-2 { color: var(--text-2); } .c-3 { color: var(--text-3); } .c-ev { color: var(--evidence); } .c-err { color: var(--error); } .c-ok { color: var(--success); }
 
 /* ---- buttons ---- */
 .btn {
