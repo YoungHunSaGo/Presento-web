@@ -131,6 +131,8 @@ function TrendLegend({ shown, onToggle }: { shown: Record<Category, boolean>; on
 }
 
 type Point = ScoreTimelineItem & { i: number };
+// TODO(spec): 명세 1장은 날짜 기준을 Asia/Seoul 로 둔다. 여기 날짜(눈금·하루 묶기·툴팁)는 앱의 다른 화면(format.ts)과 같이
+// 브라우저 시간대를 쓴다. 해외 시간대에서 보면 서버 집계(주간 활동·연속 연습일)와 하루가 어긋날 수 있어, 바꾸려면 format.ts 에서 앱 전체를 함께 바꾼다.
 const localDay = (iso: string) => { const d = new Date(iso); return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`; };
 const shortDate = (iso: string) => { const d = new Date(iso); return `${d.getMonth() + 1}.${d.getDate()}`; };
 const MAX_TICKS = 6;
