@@ -87,7 +87,7 @@ function InsightColumn({ kind, title, order, items, empty }: { kind: Kind; title
         <p className="ins-empty t-small c-2">{empty}</p>
       ) : (
         <ol className="ins-list">
-          {items.map((it, i) => <InsightCard key={it.metric} item={it} rank={i + 1} />)}
+          {items.map((it) => <InsightCard key={it.metric} item={it} />)}
         </ol>
       )}
     </div>
@@ -95,11 +95,10 @@ function InsightColumn({ kind, title, order, items, empty }: { kind: Kind; title
 }
 
 /** 카드 한 장. label·valueText·message 는 서버 문장 그대로 쓴다(명세: 프론트에서 문장을 새로 만들지 않는다). */
-function InsightCard({ item, rank }: { item: Insight; rank: number }) {
+function InsightCard({ item }: { item: Insight }) {
   return (
     <li className="ins-card">
       <div className="ins-card-top">
-        <span className="ins-rank t-data" aria-hidden="true">{rank}</span>
         <p className="ins-label t-body-strong">{item.label}</p>
         {/* UP 은 항상 '좋아짐'(추임새가 줄어도 UP). TrendMark 가 화살표·색·읽기 문구를 맡고,
             화살표만으로는 방향의 뜻(위=좋아짐)이 헷갈릴 수 있어 같은 말을 글자로도 보인다. change 가 null 이면 숫자 없이.

@@ -13,9 +13,8 @@
 
 .ins-list { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-3); }
 .ins-card { display: grid; gap: var(--s-2); padding: var(--s-4) var(--s-6); background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); min-width: 0; }
-/* 순위 · 항목명 · 추이. 추이는 오른쪽 끝에 붙이고, 항목명이 길면 항목명 칸이 줄을 바꾼다. */
-.ins-card-top { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-2); }
-.ins-rank { color: var(--text-3); min-width: 1ch; }
+/* 항목명 · 추이. 추이는 오른쪽 끝에 붙이고, 항목명이 길면 항목명 칸이 줄을 바꾼다. */
+.ins-card-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: var(--s-2); }
 .ins-label { margin: 0; }
 .ins-trend { display: inline-flex; align-items: center; gap: var(--s-1); white-space: nowrap; }
 
