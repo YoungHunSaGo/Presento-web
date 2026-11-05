@@ -29,6 +29,36 @@
 .mpm-avg-num span { font-family: var(--font-ui); font-size: 13px; font-weight: 500; color: var(--text-3); margin-left: 2px; }
 .mpm-avg-none { font-size: 14px; line-height: 26px; color: var(--text-3); }
 
+/* ---- 세부 항목 표 ----
+   표 요소를 grid 로 바꿔 넓은 화면에서는 '이름+설명 | 점수 막대 | 추이 | 수치', 좁은 화면에서는 줄마다 접는다. */
+.mpm-basis { margin: -4px 0 0; font-size: 13px; line-height: 20px; color: var(--text-3); }
+.mpm-table { display: grid; width: 100%; border-collapse: collapse; }
+.mpm-thead, .mpm-group { display: grid; }
+.mpm-tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(112px, 168px) 64px minmax(0, 148px);
+  grid-template-areas: 'label score trend value' 'msg score trend value'; column-gap: var(--s-4); align-items: center;
+  padding: var(--s-3) 0; border-bottom: 1px solid var(--line); }
+.mpm-tr > * { padding: 0; text-align: left; min-width: 0; }
+.mpm-tr-head { grid-template-areas: 'label score trend value'; padding: var(--s-2) 0; border-bottom-color: var(--line-2); }
+.mpm-tr-head > * { font-size: 13px; line-height: 20px; font-weight: 500; color: var(--text-3); }
+/* 카테고리 묶음 머리 */
+.mpm-tr-group { display: block; padding: var(--s-4) 0 var(--s-2); }
+.mpm-tr-group th { display: block; font-size: 13px; line-height: 20px; font-weight: 700; color: var(--text-2); }
+.mpm-c-label { grid-area: label; font-size: 16px; line-height: 24px; font-weight: 700; color: var(--text); }
+.mpm-c-msg { grid-area: msg; font-size: 13px; line-height: 20px; color: var(--text-3); margin-top: 2px; }
+.mpm-c-score { grid-area: score; }
+.mpm-c-trend { grid-area: trend; }
+.mpm-c-value { grid-area: value; font-size: 14px; line-height: 22px; font-weight: 500; color: var(--text-2); font-variant-numeric: tabular-nums; }
+/* 측정 안 됨: 이름 옆 한 줄로, 흐리게 */
+.mpm-tr-missing { grid-template-areas: 'label missing missing missing'; }
+.mpm-tr-missing .mpm-c-label { color: var(--text-3); font-weight: 600; }
+.mpm-c-missing { grid-area: missing; font-size: 14px; line-height: 22px; color: var(--text-3); }
+
+/* 점수 숫자 + 0~100 막대 */
+.mpm-score { display: flex; align-items: center; gap: 10px; }
+.mpm-score-num { flex: none; width: 2.4ch; text-align: right; font-family: var(--font-data); font-size: 15px; line-height: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.mpm-bar { flex: 1; min-width: 0; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
+.mpm-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--ink); }
+
 /* 표 칸이 좁아지기 전에 한 줄씩 쌓는다(1200px 이하면 두 칸일 때 이름·설명 칸이 220px 아래로 줄어 설명이 너무 잘게 끊긴다).
    레이더는 차트 옆에 숫자를, 추임새·피드백은 두 칸으로. 720px 이하에서는 표 줄을 접는다. */
 @media (max-width: 1200px) {
@@ -45,4 +75,10 @@
   .mpm-avg-item, .mpm-avg-item:first-child { grid-template-columns: none; padding: var(--s-3) var(--s-2) 0; }
   .mpm-avg-item:first-child { padding-left: 0; }
   .mpm-avg-item + .mpm-avg-item { border-top: 0; border-left: 1px solid var(--line); }
+  /* 줄마다: 이름 · 수치 · 추이 / 점수 막대 / 설명. 머리글은 보이지 않게만 둔다(화면 읽기용). */
+  .mpm-thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .mpm-tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: 'label value trend' 'score score score' 'msg msg msg'; column-gap: var(--s-3); row-gap: 6px; }
+  .mpm-c-value { text-align: right; font-size: 13px; line-height: 20px; }
+  .mpm-tr-missing { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'label missing'; }
+  .mpm-c-missing { text-align: right; }
 }
