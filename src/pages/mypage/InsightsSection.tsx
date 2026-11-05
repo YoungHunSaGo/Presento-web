@@ -57,15 +57,15 @@ function Ready({ d }: { d: MyInsights }) {
 /** 다음 연습 집중 포인트. 이 영역에서 가장 눈에 띄어야 해서 진한 면(ink) 위에 둔다. */
 function FocusTip({ tip }: { tip: string }) {
   return (
-    <aside className="ins-focus" aria-labelledby="mp-insights-focus-h">
+    <div className="ins-focus">
       <svg className="ins-focus-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
         <circle cx="12" cy="12" r="8.5" /><circle cx="12" cy="12" r="4" /><circle cx="12" cy="12" r="0.6" fill="currentColor" />
       </svg>
       <div className="ins-focus-body">
-        <h3 id="mp-insights-focus-h" className="ins-focus-title t-caption">다음 연습 집중 포인트</h3>
+        <h3 className="ins-focus-title t-caption">다음 연습 집중 포인트</h3>
         <p className="t-title">{tip}</p>
       </div>
-    </aside>
+    </div>
   );
 }
 
