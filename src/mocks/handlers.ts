@@ -26,7 +26,8 @@ const STAGE_AT = (p: number) => (p < 10 ? 'EXTRACTING_AUDIO' : p < 40 ? 'TRANSCR
 // 기간은 목업 회차가 모두 최근 2주 안이라 from·period 값만 바뀐다.
 const PERIODS: Period[] = ['30d', '90d', 'all'];
 const PURPOSES: Purpose[] = ['INTERVIEW', 'CLASS', 'PITCH', 'ETC'];
-const mockMode = () => new URLSearchParams(location.search).get('mock');
+// node(setupServer)에는 location 이 없어 전환 없이 기본 목업으로 동작한다.
+const mockMode = () => new URLSearchParams(globalThis.location?.search ?? '').get('mock');
 type MypageQuery = { period: Period; purpose: Purpose | null; limit: number };
 /** 명세 3장 공통 쿼리 검사. 틀리면 400 응답을, 맞으면 읽은 값을 돌려준다. 빈 purpose(`purpose=`)는 전체로 본다. */
 function mypageQuery(req: Request, api: 'stats' | 'insights' | 'timeline'): Response | MypageQuery {
