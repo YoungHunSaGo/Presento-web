@@ -51,7 +51,8 @@ function WeeklyActivity({ weeks }: { weeks: Week[] }) {
         <h3 id="mp-weekly-h" className="t-title">주간 활동</h3>
         <p className="mp-weekly-sum t-small c-2">
           최근 12주 <strong className="mp-act-num">{total}회</strong>
-          {total > 0 && <> · {minutesLabel(totalSec)} · 연습한 주 {activeWeeks}주</>}
+          {/* 요약 카드의 총 연습 시간처럼 분 단위로 반올림해 같은 값이 두 곳에서 다르게 보이지 않게 한다. */}
+          {total > 0 && <> · {minutesLabel(Math.round(totalSec / 60) * 60)} · 연습한 주 {activeWeeks}주</>}
         </p>
       </div>
       <div className="mp-weekly-chart" aria-hidden="true">
