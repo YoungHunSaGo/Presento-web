@@ -22,13 +22,12 @@ export function InsightsSection({ insights }: InsightsSectionProps) {
 
 /**
  * 명세 2장: 데이터가 적으면 강점·약점·집중 포인트 영역 대신 이 문구만 보인다(문구는 명세 그대로).
- * 옆의 칸 막대는 '몇 회 남았는지'를 보조로 보여 줄 뿐이라 읽기 도구에서는 숨긴다.
+ * 문구 위의 칸 막대는 '몇 회 남았는지'를 보조로 보여 줄 뿐이라 읽기 도구에서는 숨긴다.
  */
 function Insufficient({ d }: { d: MyInsights }) {
   const steps = Math.max(1, Math.min(d.requiredCount, MAX_STEPS));
-  // 칸 하나가 1회. requiredCount 가 칸 수보다 크면 비율로 줄여 채운다.
-  const filled = d.requiredCount <= MAX_STEPS ? Math.min(d.analysisCount, steps)
-    : Math.min(steps, Math.floor((d.analysisCount / d.requiredCount) * steps));
+  // 칸 하나가 1회. requiredCount 가 칸 수보다 크면 같은 비율로 줄여 채운다(곱셈을 먼저 해 소수 오차가 없게).
+  const filled = Math.min(steps, Math.floor((d.analysisCount * steps) / Math.max(1, d.requiredCount)));
   return (
     <div className="ins-insufficient">
       <span className="ins-steps" aria-hidden="true">
