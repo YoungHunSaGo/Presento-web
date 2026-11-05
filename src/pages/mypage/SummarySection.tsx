@@ -201,10 +201,11 @@ function TrendChart({ t, shown }: { t: ScoreTimeline; shown: Record<Category, bo
           </LineChart>
         </ResponsiveContainer>
       </div>
-      <figcaption className="mp-trend-cap t-caption c-3">
+      {/* figcaption 은 figure 의 첫째·마지막 자식이어야 해서(뒤에 표가 온다) 문단으로 둔다. 이름은 aria-labelledby 가 준다. */}
+      <p className="mp-trend-cap t-caption c-3">
         {total > items.length && <span>전체 <span className="t-data">{total}</span>회 중 최근 <span className="t-data">{items.length}</span>회만 보여 줘요. </span>}
         점을 누르면 그 회차 리포트로 이동해요.
-      </figcaption>
+      </p>
       <TrendTable points={points} />
     </figure>
   );
