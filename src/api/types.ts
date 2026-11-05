@@ -75,3 +75,48 @@ export interface Report {
   expectedQuestions: ExpectedQuestion[];
   slideCoverage: SlideCoverage[] | null;
 }
+
+// ---- 마이페이지 M1–M3 (presento-mypage-spec.md 5장 그대로) ----
+export type Period = '30d' | '90d' | 'all';
+export type Trend = 'UP' | 'DOWN' | 'FLAT';
+export type Metric =
+  | 'PACE' | 'FILLER' | 'SILENCE' | 'TIME'
+  | 'GAZE' | 'POSTURE' | 'GESTURE'
+  | 'STRUCTURE' | 'CLARITY' | 'LANGUAGE';
+export type Grade = 'A+' | 'A' | 'B+' | 'B' | 'C+' | 'C' | 'D';
+
+export interface MyStats {
+  period: Period; from: string | null; to: string;
+  presentationCount: number; analysisCount: number; totalPracticeSec: number;
+  // 데이터가 없으면 null. 화면에는 '-'로 보인다.
+  averageScore: number | null; bestScore: number | null; bestAnalysisId: string | null; recentChange: number | null;
+  streakDays: number;
+  categoryAverages: Record<Category, number | null>;
+  gradeDistribution: Record<Grade, number>;
+  purposeBreakdown: { purpose: Purpose; analysisCount: number; averageScore: number | null }[];
+  // 항상 12주(월요일 시작), 오래된 순, 0인 주 포함
+  weeklyActivity: { weekStart: string; analysisCount: number; practiceSec: number; averageScore: number | null }[];
+}
+
+// label·valueText·message 는 서버가 만든 완성 문장이라 그대로 보여 준다.
+export interface Insight {
+  metric: Metric; category: Category; label: string; score: number; trend: Trend; change: number | null;
+  sampleCount: number; valueText: string; message: string;
+}
+
+export interface MyInsights {
+  status: 'READY' | 'INSUFFICIENT_DATA';
+  analysisCount: number; requiredCount: number; basedOnRecent: number;
+  // READY 여도 측정된 항목만 와서 비어 있거나 10개보다 적을 수 있다.
+  strengths: Insight[]; weaknesses: Insight[]; metrics: Insight[];
+  focusTip: string | null;
+  topFillers: { word: string; count: number }[];
+  frequentFeedbackTypes: { type: string; label: string; count: number }[];
+}
+
+export interface ScoreTimelineItem {
+  analysisId: string; presentationId: string; presentationTitle: string; purpose: Purpose; attemptNo: number;
+  createdAt: string; overallScore: number; grade: Grade; scores: Record<Category, number>;
+}
+// items 는 오래된 순. total 은 limit 로 잘리기 전 전체 완료 회차 수.
+export interface ScoreTimeline { items: ScoreTimelineItem[]; total: number }
