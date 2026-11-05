@@ -14,9 +14,9 @@
 .mp-card-sub { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); font-size: 13px; line-height: 20px; color: var(--text-2); }
 
 /* ---- 점수 추이 ---- */
-.mp-trend { display: grid; gap: var(--s-3); min-width: 0; margin-top: var(--s-4); }
+.mp-trend { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); min-width: 0; margin-top: var(--s-4); }
 .mp-trend-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; }
-.mp-trend-fig { margin: 0; display: grid; gap: var(--s-3); min-width: 0; padding: var(--s-4) var(--s-4) var(--s-3);
+.mp-trend-fig { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); min-width: 0; padding: var(--s-4) var(--s-4) var(--s-3);
   background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); }
 .mp-trend-plot { height: 280px; min-width: 0; }
 .mp-trend-dot { cursor: pointer; }
@@ -53,7 +53,7 @@
 .mp-tip-cats dd { color: var(--text); }
 
 /* 표로 보기 */
-.mp-trend-table { border-top: 1px solid var(--line); padding-top: var(--s-2); }
+.mp-trend-table { min-width: 0; border-top: 1px solid var(--line); padding-top: var(--s-2); }
 .mp-trend-table summary { cursor: pointer; width: fit-content; font-weight: 600; color: var(--text-2); }
 .mp-trend-table summary:hover { color: var(--text); }
 .mp-trend-scroll { overflow-x: auto; margin-top: var(--s-2); }
