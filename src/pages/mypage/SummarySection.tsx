@@ -85,7 +85,8 @@ function SummaryCards({ s }: { s: MyStats }) {
         {trend ? (
           <dd className="mp-card-sub"><TrendMark trend={trend} change={s.recentChange} /><span>직전 5회 대비</span></dd>
         ) : (
-          <dd className="mp-card-sub c-3">최근 변화 {dash(null)}</dd>
+          // .mp-card-sub 의 글자색이 .c-3 보다 늦게 실려(지연 로드) 같은 요소에 두면 흐린 색이 먹지 않는다.
+          <dd className="mp-card-sub"><span className="c-3">최근 변화 {dash(null)}</span></dd>
         )}
       </div>
       <div className="mp-card">
