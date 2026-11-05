@@ -181,9 +181,11 @@ function TrendChart({ t, shown }: { t: ScoreTimeline; shown: Record<Category, bo
     <figure className="mp-trend-fig" aria-labelledby="mp-trend-h">
       <div className="mp-trend-plot">
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={points} margin={{ top: 12, right: 16, left: -20, bottom: 0 }}>
+          {/* left: y축 칸(44px) 오른쪽 끝에서 8px 띄워 눈금 글자가 끝나므로, -20 이면 '100'의 앞이 svg 밖으로 잘린다.
+              XAxis padding 은 양 끝 점(누르는 원 r=14)과 끝 날짜가 그림 가장자리·y축 숫자에 붙지 않게 한다. */}
+          <LineChart data={points} margin={{ top: 12, right: 16, left: -12, bottom: 0 }}>
             <CartesianGrid stroke="var(--line)" vertical={false} />
-            <XAxis dataKey="i" type="category" ticks={ticks} interval={0} tickFormatter={(i: number) => shortDate(points[i].createdAt)}
+            <XAxis dataKey="i" type="category" ticks={ticks} interval={0} padding={{ left: 12, right: 12 }} tickFormatter={(i: number) => shortDate(points[i].createdAt)}
               tick={{ fontSize: 12, fill: 'var(--text-3)', fontFamily: 'var(--font-data)' }} axisLine={{ stroke: 'var(--line-2)' }} tickLine={false} tickMargin={8} />
             <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} width={44}
               tick={{ fontSize: 12, fill: 'var(--text-3)', fontFamily: 'var(--font-data)' }} axisLine={false} tickLine={false} />
