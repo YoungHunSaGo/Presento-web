@@ -31,3 +31,5 @@ Thumbs.db
 
 # test / coverage
 coverage/
+# vercel CLI 연결 정보
+.vercel
