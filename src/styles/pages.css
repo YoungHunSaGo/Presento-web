@@ -90,7 +90,9 @@
 .stage.wait { color: var(--text-3); }
 
 /* report */
-.report-grid { display: grid; grid-template-columns: minmax(0, 1fr) 460px; grid-template-areas: 'main side' 'main metrics'; column-gap: 48px; row-gap: 32px; align-items: start; }
+/* 왼쪽(main)이 두 줄에 걸쳐 있어, 탭 내용이 길어지면 남는 높이가 위 줄(side)에도 나뉘어 측정값이 밀린다.
+   위 줄은 내용만큼(auto), 남는 높이는 아래 줄(1fr)이 받게 해 측정값을 영상 바로 아래에 고정한다. */
+.report-grid { display: grid; grid-template-columns: minmax(0, 1fr) 460px; grid-template-rows: auto 1fr; grid-template-areas: 'main side' 'main metrics'; column-gap: 48px; row-gap: 32px; align-items: start; }
 .report-main { grid-area: main; min-width: 0; }
 .report-side { grid-area: side; min-width: 0; }
 .report-metrics { grid-area: metrics; min-width: 0; }
@@ -135,7 +137,7 @@
 /* responsive */
 @media (max-width: 1100px) {
   .detail-grid { grid-template-columns: 1fr; }
-  .report-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'side' 'main' 'metrics'; }
+  .report-grid { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; grid-template-areas: 'side' 'main' 'metrics'; }
   .recorder { grid-template-columns: 1fr; }
 }
 /* 로그인: 왼쪽 소개 칸은 100vw - 635px. 소개 칸이 좁아져 제목이 줄바꿈되기 전에 위아래로 쌓는다.
