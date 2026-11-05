@@ -61,8 +61,9 @@ function WeeklyActivity({ weeks }: { weeks: Week[] }) {
             <CartesianGrid stroke="var(--line)" vertical={false} />
             <XAxis dataKey="weekStart" tickFormatter={(v: string) => shortDate(parseYmd(v))} interval="preserveEnd" minTickGap={8}
               tick={{ fontSize: 12, fill: 'var(--text-3)', fontFamily: 'var(--font-data)' }} axisLine={{ stroke: 'var(--line-2)' }} tickLine={false} />
-            {/* 횟수라 정수 눈금만. 전부 0이거나 작아도 눈금이 몇 개는 보이게 위쪽을 최소 4로 둔다. */}
-            <YAxis allowDecimals={false} domain={[0, Math.max(4, max)]} width={28}
+            {/* 횟수라 정수 눈금만. 전부 0이거나 작아도 눈금이 몇 개는 보이게 위쪽을 최소 4로 두고,
+                짝수로 올려 0·2·4·7처럼 간격이 어긋난 눈금이 나오지 않게 한다. */}
+            <YAxis allowDecimals={false} domain={[0, Math.max(4, Math.ceil(max / 2) * 2)]} width={28}
               tick={{ fontSize: 12, fill: 'var(--text-3)', fontFamily: 'var(--font-data)' }} axisLine={false} tickLine={false} />
             <Tooltip content={<WeekTooltip />} cursor={{ fill: 'rgba(14, 15, 18, 0.05)' }} isAnimationActive={false} />
             <Bar dataKey="analysisCount" shape={WeekBar} maxBarSize={32} isAnimationActive={false} />
