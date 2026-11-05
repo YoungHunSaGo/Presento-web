@@ -118,11 +118,10 @@ function AxisTick({ x = 0, y = 0, cy = 0, textAnchor = 'middle', payload, averag
 
 function MetricTable({ d }: { d: MyInsights }) {
   if (d.metrics.length === 0) {
-    // 명세 '데이터 부족 예'는 metrics 가 빈 배열이다. 열 줄 모두 '측정 안 됨'으로 채우지 않고 짧게 알린다.
+    // 열 줄 모두 '측정 안 됨'으로 채우지 않고 짧게 알린다. 데이터 부족(INSUFFICIENT_DATA) 안내 문장은 명세 2장대로
+    // 강점·약점 영역이 보여 주므로 여기서 따로 지어 쓰지 않는다(명세는 metrics 가 requiredCount 에 묶인다고 하지 않는다).
     // TODO(spec): INSUFFICIENT_DATA 일 때 metrics 가 항상 비는지는 예시로만 알 수 있다. 항목이 오면 아래 표를 그대로 그린다.
-    return d.status === 'INSUFFICIENT_DATA'
-      ? <p className="mpm-note">분석을 {d.requiredCount}회 이상 완료하면 항목별 점수를 보여 드려요. (현재 {d.analysisCount}회)</p>
-      : <p className="mpm-note">아직 측정된 항목이 없어요</p>;
+    return <p className="mpm-note">아직 측정된 항목이 없어요</p>;
   }
   const got = new Map<Metric, Insight>(d.metrics.map((m) => [m.metric, m]));
   return (
