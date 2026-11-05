@@ -126,8 +126,8 @@ function MetricTable({ d }: { d: MyInsights }) {
   const got = new Map<Metric, Insight>(d.metrics.map((m) => [m.metric, m]));
   return (
     <>
-      {/* TODO(spec): 항목 점수(score)의 집계 구간이 basedOnRecent(판정에 쓴 최근 회차 수)와 같다고 보고 적었다. */}
-      <p className="mpm-basis">최근 {d.basedOnRecent}회 분석 기준</p>
+      {/* TODO(spec): 항목 점수(score)가 basedOnRecent 구간의 평균인지 명세에 없고, 항목마다 sampleCount 도 달라
+          '최근 N회 기준' 같은 문구는 붙이지 않는다. 집계 구간이 정해지면 다시 본다. */}
       {/* 좁은 화면에서 줄을 카드처럼 접으려고 표 요소를 grid 로 바꾼다. 일부 브라우저가 이때 표 의미를 버려 role 을 직접 단다. */}
       <table className="mpm-table" role="table">
         <caption className="visually-hidden">세부 항목별 점수, 추이, 수치</caption>

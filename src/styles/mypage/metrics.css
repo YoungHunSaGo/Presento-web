@@ -34,7 +34,6 @@
 
 /* ---- 세부 항목 표 ----
    표 요소를 grid 로 바꿔 넓은 화면에서는 '이름+설명 | 점수 막대 | 추이 | 수치', 좁은 화면에서는 줄마다 접는다. */
-.mpm-basis { margin: -4px 0 0; font-size: 13px; line-height: 20px; color: var(--text-3); }
 .mpm-table { display: grid; width: 100%; border-collapse: collapse; }
 .mpm-thead, .mpm-group { display: grid; }
 .mpm-tr { display: grid; grid-template-columns: minmax(0, 1fr) minmax(112px, 168px) 64px minmax(0, 148px);
