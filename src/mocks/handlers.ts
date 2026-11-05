@@ -59,7 +59,7 @@ export const handlers = [
   http.post(`${B}/presentations/:id/analyses`, async ({ params, request }) => {
     const body = (await request.json()) as { contentType: string; fileSize: number };
     if (!['video/mp4', 'video/quicktime', 'video/webm'].includes(body.contentType.split(';')[0])) return err(415, 'UNSUPPORTED_FILE_TYPE', 'mp4, mov, webm 영상만 올릴 수 있어요.');
-    if (body.fileSize > 500 * 1024 * 1024) return err(413, 'FILE_TOO_LARGE', '영상은 500MB 이하만 업로드할 수 있어요.');
+    if (body.fileSize > 2 * 1024 * 1024 * 1024) return err(413, 'FILE_TOO_LARGE', '영상은 2GB 이하만 업로드할 수 있어요.');
     const id = `a-${Math.random().toString(16).slice(2, 6)}`;
     analyses.set(id, { analysisId: id, presentationId: String(params.id), attemptNo: 4, status: 'WAITING_UPLOAD', stage: null, progress: 0, error: null, createdAt: new Date().toISOString(), completedAt: null });
     return HttpResponse.json({ analysisId: id, attemptNo: 4, status: 'WAITING_UPLOAD', upload: { uploadUrl: `https://presento-bucket.s3.amazonaws.com/videos/${id}`, method: 'PUT', headers: { 'Content-Type': body.contentType }, expiresInSec: 900 } }, { status: 201 });

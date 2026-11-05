@@ -18,7 +18,7 @@ export function RecordPage() {
         <BackLink to={`/presentations/${id}`}>{p.data?.title ?? '발표'}</BackLink>
         <div className="stack" style={{ gap: 6 }}>
           <h1 className="t-h1">{p.data ? `${nextNo}회차 영상` : '영상'}</h1>
-          <p className="t-small c-2">mp4, mov, webm. 10분, 500MB까지.{p.data?.timeLimitSec ? ` 제한 시간 ${minutesLabel(p.data.timeLimitSec)}.` : ''}</p>
+          <p className="t-small c-2">mp4, mov, webm. 10분, 2GB까지.{p.data?.timeLimitSec ? ` 제한 시간 ${minutesLabel(p.data.timeLimitSec)}.` : ''}</p>
         </div>
         <div className="tabs" role="tablist" aria-label="영상 입력 방법">
           {/* 두 탭이 업로드 상태(up)를 같이 쓰므로, 탭을 바꿀 때 다른 탭의 에러 문구를 지운다. */}
@@ -38,7 +38,7 @@ function UploadPanel({ up }: { up: Up }) {
   const choose = (f?: File) => {
     up.setError(null); if (!f) return;
     if (!VIDEO_TYPES.includes(f.type)) return up.setError('mp4, mov, webm 영상만 올릴 수 있어요.');
-    if (f.size > VIDEO_MAX) return up.setError('영상은 500MB 이하만 업로드할 수 있어요.');
+    if (f.size > VIDEO_MAX) return up.setError('영상은 2GB 이하만 업로드할 수 있어요.');
     setFile(f); up.run(f, f.name, 'UPLOAD');
   };
   const drop = (e: DragEvent) => { e.preventDefault(); setOver(false); choose(e.dataTransfer.files?.[0]); };
