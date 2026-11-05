@@ -86,7 +86,7 @@ VITE_API_BASE_URL=https://rose-code-korean-teaching.trycloudflare.com/api/v1
 {
   "error": {
     "code": "FILE_TOO_LARGE",
-    "message": "영상은 500MB 이하만 업로드할 수 있어요.",
+    "message": "영상은 2GB 이하만 업로드할 수 있어요.",
     "details": null
   }
 }
@@ -280,7 +280,7 @@ API는 16개이고, 영상 분석의 핵심 흐름은 **"업로드 URL 발급 �
 ```
 
 - `contentType`: `video/mp4`, `video/quicktime`(mov), `video/webm` 중 하나. 웹 녹화는 크롬이 webm, 사파리가 mp4로 나온다.
-- `fileSize`: 바이트. 500MB 이하. `source`: `UPLOAD` 또는 `RECORDING`.
+- `fileSize`: 바이트. 2GB(`2,147,483,648`) 이하. 넘으면 `413 FILE_TOO_LARGE`. Cloudflare 무료 터널로 올릴 때는 터널 자체 제한 때문에 100MB 이하만 올라간다. `source`: `UPLOAD` 또는 `RECORDING`.
 - 하루 분석 횟수가 이미 찼으면 `429 RATE_LIMITED`.
 
 응답 `201`
@@ -344,6 +344,19 @@ await axios.put(upload.uploadUrl, file, {
 ### N5. 영상 재생 URL `GET /analyses/{analysisId}/video-url`
 
 응답 `200` `{ "videoUrl": "https://lows-evaluation-barrel-vegas.trycloudflare.com/presento/videos/...", "expiresInSec": 3600 }` — `<video src>`에 넣는다. 1시간 뒤 만료되므로 리포트 화면에 들어올 때마다 새로 받는다.
+
+- 업로드 후 7일이 지나면 서버 디스크 관리를 위해 원본 영상 파일만 자동 삭제된다. N4 리포트, P7 점수 추이, 슬라이드 PDF 등은 지워지지 않고 계속 남는다.
+- 영상이 지워진 회차에서 N5를 부르면 `410 Gone`:
+
+```json
+{
+  "error": {
+    "code": "VIDEO_EXPIRED",
+    "message": "보관 기간(7일)이 지나 영상이 삭제됐어요. 리포트는 그대로 볼 수 있어요.",
+    "details": null
+  }
+}
+```
 
 ### N6. 회차 삭제 `DELETE /analyses/{analysisId}`
 
@@ -534,7 +547,8 @@ await axios.put(upload.uploadUrl, file, {
 | 409 | `EMAIL_ALREADY_EXISTS` | 이미 가입된 이메일 |
 | 409 | `UPLOAD_NOT_FOUND` | 업로드 전에 분석 시작 호출 |
 | 409 | `ANALYSIS_NOT_READY` | 분석 완료 전 리포트 요청 |
-| 413 | `FILE_TOO_LARGE` | 영상 500MB, PDF 20MB 초과 |
+| 410 | `VIDEO_EXPIRED` | 보관 기간(7일)이 지나 원본 영상이 삭제된 회차의 N5 호출 |
+| 413 | `FILE_TOO_LARGE` | 영상 2GB, PDF 20MB 초과 |
 | 415 | `UNSUPPORTED_FILE_TYPE` | mp4·mov·webm·pdf 외 형식 |
 | 422 | `VIDEO_TOO_LONG` | 10분 초과 영상 |
 | 429 | `RATE_LIMITED` | 하루 분석 횟수(사용자당 20회) 초과 |
