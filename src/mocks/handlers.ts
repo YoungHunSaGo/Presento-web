@@ -99,6 +99,8 @@ export const handlers = [
   // 서버처럼 업로드 전 회차는 409. a-novideo 는 리포트는 있고 영상만 없는 경우를 화면에서 확인하는 용도.
   http.get(`${B}/analyses/:id/video-url`, ({ params }) => {
     if (analyses.get(String(params.id))?.status === 'WAITING_UPLOAD' || params.id === 'a-novideo') return err(409, 'UPLOAD_NOT_FOUND', '아직 업로드된 영상이 없어요.');
+    // a-expired: 업로드 후 7일이 지나 원본 영상만 지워진 회차(410 VIDEO_EXPIRED).
+    if (params.id === 'a-expired') return err(410, 'VIDEO_EXPIRED', '보관 기간(7일)이 지나 영상이 삭제됐어요. 리포트는 그대로 볼 수 있어요.');
     return HttpResponse.json({ videoUrl: '', expiresInSec: 3600 });
   }),
   http.delete(`${B}/analyses/:id`, () => new HttpResponse(null, { status: 204 })),

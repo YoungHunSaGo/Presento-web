@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { getPresentation, getReport, getVideoUrl } from '@/api/endpoints';
-import { errorMessage } from '@/api/client';
+import { errorCode, errorMessage } from '@/api/client';
 import type { Feedback, Report, Segment } from '@/api/types';
 import { clock, shortDuration } from '@/lib/format';
 import { BackLink, ErrorState, Loading } from '@/components/Layout';
@@ -24,7 +24,11 @@ export function ReportPage() {
   const p = useQuery({ queryKey: ['presentation', r.data?.presentationId], queryFn: () => getPresentation(r.data!.presentationId), enabled: !!r.data });
   if (r.isPending) return <main className="page"><Loading label="리포트를 불러오는 중" /></main>;
   if (r.isError) return <main className="page"><ErrorState message={errorMessage(r.error)} onRetry={() => r.refetch()} /></main>;
-  return <ReportView report={r.data} videoUrl={v.data?.videoUrl} videoError={v.isError ? errorMessage(v.error, '영상을 불러오지 못했어요.') : undefined}
+  // 명세 N5: 업로드 후 7일이 지나면 원본 영상만 지워지고 410 VIDEO_EXPIRED 가 온다. 리포트는 그대로 보여 준다.
+  const videoError = !v.isError ? undefined
+    : errorCode(v.error) === 'VIDEO_EXPIRED' ? errorMessage(v.error, '보관 기간(7일)이 지나 영상이 삭제됐어요. 리포트는 그대로 볼 수 있어요.')
+    : errorMessage(v.error, '영상을 불러오지 못했어요.');
+  return <ReportView report={r.data} videoUrl={v.data?.videoUrl} videoError={videoError}
     reloadVideo={() => v.refetch()} videoReloading={v.isFetching}
     title={p.data?.title} nextNo={(p.data?.attempts[0]?.attemptNo ?? r.data.attemptNo) + 1} />;
 }
