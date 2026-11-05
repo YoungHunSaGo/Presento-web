@@ -32,9 +32,11 @@ export function useMypageFilters() {
   const setPurpose = useCallback((p: Purpose | null) => write({ purpose: p }), [write]);
   // 명세 6장: 400 VALIDATION_ERROR 면 기본값으로 되돌린다. 기록을 남기지 않게 replace.
   const reset = useCallback(() => write({ period: DEFAULT_PERIOD, purpose: null }, true), [write]);
-  // 주소에 정해지지 않은 값이 있으면 주소도 기본값으로 정리해 화면과 주소를 맞춘다.
-  const invalid = (rawPeriod !== null && !isPeriod(rawPeriod)) || (rawPurpose !== null && !isPurpose(rawPurpose));
-  useEffect(() => { if (invalid) reset(); }, [invalid, reset]);
+  // 주소에 정해지지 않은 값이 있으면 그 값만 기본값으로 정리해 화면과 주소를 맞춘다(올바른 다른 필터는 둔다).
+  const badPeriod = rawPeriod !== null && !isPeriod(rawPeriod); const badPurpose = rawPurpose !== null && !isPurpose(rawPurpose);
+  useEffect(() => {
+    if (badPeriod || badPurpose) write({ period: badPeriod ? DEFAULT_PERIOD : undefined, purpose: badPurpose ? null : undefined }, true);
+  }, [badPeriod, badPurpose, write]);
   return { period, purpose, setPeriod, setPurpose, reset };
 }
 export type MypageFilters = ReturnType<typeof useMypageFilters>;
