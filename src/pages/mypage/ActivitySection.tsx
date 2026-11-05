@@ -68,19 +68,22 @@ function WeeklyActivity({ weeks }: { weeks: Week[] }) {
           </BarChart>
         </ResponsiveContainer>
       </div>
-      {/* 차트를 못 보는 경우를 위한 주별 목록(화면에는 숨김) */}
-      <table className="visually-hidden">
-        <caption>주별 연습 횟수, 오래된 순</caption>
-        <thead><tr><th scope="col">주</th><th scope="col">연습 수</th><th scope="col">연습 시간</th><th scope="col">평균 점수</th></tr></thead>
-        <tbody>
-          {weeks.map((w) => (
-            <tr key={w.weekStart}>
-              <th scope="row">{weekRange(w.weekStart)}</th>
-              <td>{w.analysisCount}회</td><td>{minutesLabel(w.practiceSec)}</td><td>{dash(w.averageScore, '점')}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {/* 차트를 못 보는 경우를 위한 주별 목록(화면에는 숨김).
+          표(display: table)는 width: 1px·overflow: hidden 이 먹지 않아 내용 폭만큼 커지므로, 숨김 클래스는 감싼 div 에 둔다. */}
+      <div className="visually-hidden">
+        <table>
+          <caption>주별 연습 횟수, 오래된 순</caption>
+          <thead><tr><th scope="col">주</th><th scope="col">연습 수</th><th scope="col">연습 시간</th><th scope="col">평균 점수</th></tr></thead>
+          <tbody>
+            {weeks.map((w) => (
+              <tr key={w.weekStart}>
+                <th scope="row">{weekRange(w.weekStart)}</th>
+                <td>{w.analysisCount}회</td><td>{minutesLabel(w.practiceSec)}</td><td>{dash(w.averageScore, '점')}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </figure>
   );
 }
