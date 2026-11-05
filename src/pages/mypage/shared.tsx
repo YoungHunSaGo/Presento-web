@@ -51,8 +51,12 @@ export function QueryView<T>({ query, minHeight, children }: { query: UseQueryRe
 export const TREND_LABEL: Record<Trend, string> = { UP: '좋아짐', DOWN: '나빠짐', FLAT: '변화 없음' };
 const TREND_PATH: Record<Trend, string> = { UP: 'M12 19V5M5 12l7-7 7 7', DOWN: 'M12 5v14M19 12l-7 7-7-7', FLAT: 'M5 12h14' };
 
-/** 추이 표시. change 를 주면 화살표 옆에 +8 / -7 처럼 붙인다(null 이면 숫자 없이). */
-export function TrendMark({ trend, change }: { trend: Trend; change?: number | null }) {
+/**
+ * 추이 표시. change 를 주면 화살표 옆에 +8 / -7 처럼 붙인다(null 이면 숫자 없이).
+ * FLAT 은 ±5점 미만이라 '변화 없음'으로 본 것이므로 숫자를 붙이면 '변화 없음 +2'처럼 어긋난다. FLAT 이면 숫자를 뺀다.
+ */
+export function TrendMark({ trend, change: rawChange }: { trend: Trend; change?: number | null }) {
+  const change = trend === 'FLAT' ? null : rawChange;
   return (
     <span className={`trend trend-${trend.toLowerCase()}`} role="img" aria-label={change != null ? `${TREND_LABEL[trend]} ${change > 0 ? '+' : ''}${change}` : TREND_LABEL[trend]}>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={TREND_PATH[trend]} /></svg>
