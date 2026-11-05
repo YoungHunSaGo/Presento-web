@@ -11,12 +11,12 @@
 .mp-filters { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
 .mp-purpose .input { width: 168px; }
 /* 기간 토글(세그먼트). 높이를 .input(48px)과 맞춘다. */
-.seg { display: inline-flex; height: 48px; padding: 4px; gap: 2px; border: 1px solid var(--line-2); border-radius: var(--radius-control); background: var(--surface); }
-.seg-btn { border: 0; background: none; padding: 0 16px; border-radius: 7px; cursor: pointer; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text-2);
+.mp-seg { display: inline-flex; height: 48px; padding: 4px; gap: 2px; border: 1px solid var(--line-2); border-radius: var(--radius-control); background: var(--surface); }
+.mp-seg-btn { border: 0; background: none; padding: 0 16px; border-radius: 7px; cursor: pointer; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text-2);
   transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out); }
-.seg-btn:hover { color: var(--text); background: rgba(14, 15, 18, 0.04); }
-.seg-btn[aria-pressed='true'] { background: var(--ink); color: var(--on-ink); }
-.seg-btn:focus-visible { box-shadow: var(--ring); border-radius: 7px; }
+.mp-seg-btn:hover { color: var(--text); background: rgba(14, 15, 18, 0.04); }
+.mp-seg-btn[aria-pressed='true'] { background: var(--ink); color: var(--on-ink); }
+.mp-seg-btn:focus-visible { box-shadow: var(--ring); border-radius: 7px; }
 
 .mp-body { display: grid; gap: var(--s-12); }
 .mp-body > * { min-width: 0; }
@@ -30,7 +30,7 @@
 }
 @media (max-width: 480px) {
   .mp-filters { flex-direction: column; align-items: stretch; }
-  .seg { width: 100%; }
-  .seg-btn { flex: 1; padding: 0 8px; }
+  .mp-seg { width: 100%; }
+  .mp-seg-btn { flex: 1; padding: 0 8px; }
   .mp-purpose .input { width: 100%; }
 }

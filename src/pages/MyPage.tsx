@@ -55,9 +55,9 @@ function Profile() {
 function FilterBar({ f }: { f: MypageFilters }) {
   return (
     <div className="mp-filters">
-      <div className="seg" role="group" aria-label="기간">
+      <div className="mp-seg" role="group" aria-label="기간">
         {PERIOD_OPTIONS.map((o) => (
-          <button key={o.value} type="button" className="seg-btn" aria-pressed={f.period === o.value}
+          <button key={o.value} type="button" className="mp-seg-btn" aria-pressed={f.period === o.value}
             onClick={() => { if (f.period !== o.value) f.setPeriod(o.value); }}>{o.label}</button>
         ))}
       </div>
