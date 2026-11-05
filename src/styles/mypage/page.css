@@ -1,0 +1,36 @@
+/* 마이페이지 화면 틀(src/pages/MyPage.tsx). 섹션 안쪽 모양은 각 섹션 CSS 에 둔다. */
+.mp { display: grid; gap: var(--s-8); }
+/* 프로필과 필터를 한 줄에. 필터는 아래 섹션 전체에 걸리므로 구분선 위에 둔다. */
+.mp-top { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--s-6); flex-wrap: wrap; padding-bottom: var(--s-6); border-bottom: 1px solid var(--line); }
+.mp-profile { display: grid; gap: var(--s-1); min-width: 0; }
+.mp-profile-meta { display: flex; flex-wrap: wrap; column-gap: var(--s-4); row-gap: 0; }
+/* 이메일과 가입일 사이 가는 세로선 */
+.mp-profile-meta span + span { position: relative; }
+.mp-profile-meta span + span::before { content: ''; position: absolute; left: calc(var(--s-2) * -1); top: 5px; bottom: 5px; width: 1px; background: var(--line-2); }
+
+.mp-filters { display: flex; align-items: center; gap: var(--s-3); flex-wrap: wrap; }
+.mp-purpose .input { width: 168px; }
+/* 기간 토글(세그먼트). 높이를 .input(48px)과 맞춘다. */
+.seg { display: inline-flex; height: 48px; padding: 4px; gap: 2px; border: 1px solid var(--line-2); border-radius: var(--radius-control); background: var(--surface); }
+.seg-btn { border: 0; background: none; padding: 0 16px; border-radius: 7px; cursor: pointer; font-size: 15px; line-height: 22px; font-weight: 600; color: var(--text-2);
+  transition: background-color 160ms var(--ease-out), color 160ms var(--ease-out); }
+.seg-btn:hover { color: var(--text); background: rgba(14, 15, 18, 0.04); }
+.seg-btn[aria-pressed='true'] { background: var(--ink); color: var(--on-ink); }
+.seg-btn:focus-visible { box-shadow: var(--ring); border-radius: 7px; }
+
+.mp-body { display: grid; gap: var(--s-12); }
+.mp-body > * { min-width: 0; }
+
+.mp-empty { min-height: 320px; display: grid; place-content: center; justify-items: center; gap: var(--s-6); text-align: center; padding: var(--s-8) var(--s-4); }
+
+@media (max-width: 860px) {
+  .mp-top { flex-direction: column; align-items: stretch; }
+  .mp-filters { justify-content: space-between; }
+  .mp-body { gap: var(--s-8); }
+}
+@media (max-width: 480px) {
+  .mp-filters { flex-direction: column; align-items: stretch; }
+  .seg { width: 100%; }
+  .seg-btn { flex: 1; padding: 0 8px; }
+  .mp-purpose .input { width: 100%; }
+}
