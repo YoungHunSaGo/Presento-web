@@ -87,7 +87,10 @@ button { font: inherit; color: inherit; }
 .row { display: flex; align-items: center; }
 .between { justify-content: space-between; }
 .wrap { flex-wrap: wrap; }
-.back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none; }
+/* 마우스를 올리면 회차 목록처럼 흐린 배경을 깐다. 배경 여백만큼 음수 margin 을 줘 글자 위치는 그대로 둔다. */
+.back { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--ink); text-decoration: none;
+  align-self: flex-start; justify-self: start; padding: 4px 8px; margin: -4px -8px; border-radius: 6px; transition: background-color 160ms var(--ease-out); }
+.back:hover { background: rgba(14, 15, 18, 0.03); }
 .back svg { width: 16px; height: 16px; }
 .rule-list > * + * { border-top: 1px solid var(--line); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
