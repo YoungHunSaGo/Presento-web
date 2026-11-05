@@ -135,8 +135,9 @@ const shortDate = (iso: string) => { const d = new Date(iso); return `${d.getMon
 const MAX_TICKS = 6;
 
 /**
- * x 눈금: 하루에 여러 회차가 있을 수 있어 그날 첫 회차에만 날짜를 단다. 많으면 고르게 MAX_TICKS 개로 줄인다
- * (375px 에서도 겹치지 않게). 점은 회차마다 같은 간격이다(같은 날 회차가 한 점에 겹치지 않도록).
+ * x 눈금: 하루에 여러 회차가 있을 수 있어 그날 첫 회차에만 날짜를 단다. 많으면 고르게 MAX_TICKS 개로 줄인다.
+ * 점은 회차마다 같은 간격이다(같은 날 회차가 한 점에 겹치지 않도록). 그래서 고른 날짜끼리 한 칸 차이일 수 있어
+ * (예: 목업 10.26·10.27), 좁은 화면에서 글자가 겹치는 것은 XAxis interval="preserveStartEnd" 가 걸러 낸다.
  */
 function dayTicks(points: Point[]): number[] {
   const firsts = points.filter((p, k) => k === 0 || localDay(p.createdAt) !== localDay(points[k - 1].createdAt)).map((p) => p.i);
@@ -185,7 +186,7 @@ function TrendChart({ t, shown }: { t: ScoreTimeline; shown: Record<Category, bo
               XAxis padding 은 양 끝 점(누르는 원 r=14)과 끝 날짜가 그림 가장자리·y축 숫자에 붙지 않게 한다. */}
           <LineChart data={points} margin={{ top: 12, right: 16, left: -12, bottom: 0 }}>
             <CartesianGrid stroke="var(--line)" vertical={false} />
-            <XAxis dataKey="i" type="category" ticks={ticks} interval={0} padding={{ left: 12, right: 12 }} tickFormatter={(i: number) => shortDate(points[i].createdAt)}
+            <XAxis dataKey="i" type="category" ticks={ticks} interval="preserveStartEnd" minTickGap={8} padding={{ left: 12, right: 12 }} tickFormatter={(i: number) => shortDate(points[i].createdAt)}
               tick={{ fontSize: 12, fill: 'var(--text-3)', fontFamily: 'var(--font-data)' }} axisLine={{ stroke: 'var(--line-2)' }} tickLine={false} tickMargin={8} />
             <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} width={44}
               tick={{ fontSize: 12, fill: 'var(--text-3)', fontFamily: 'var(--font-data)' }} axisLine={false} tickLine={false} />
