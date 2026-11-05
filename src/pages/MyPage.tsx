@@ -41,13 +41,13 @@ export function MyPage() {
 }
 
 function Profile() {
-  const me = useMe(); const u = me.data;
+  const { user: u, isError } = useMe();
   return (
     <div className="mp-profile">
       <h1 className="t-h1">{u?.nickname ?? '마이페이지'}</h1>
       {u ? (
         <p className="mp-profile-meta t-small c-2"><span>{u.email}</span><span>가입일 {fullDateLabel(u.createdAt)}</span></p>
-      ) : me.isError ? <p className="t-small c-3">내 정보를 불러오지 못했어요</p> : null}
+      ) : isError ? <p className="t-small c-3">내 정보를 불러오지 못했어요</p> : null}
     </div>
   );
 }

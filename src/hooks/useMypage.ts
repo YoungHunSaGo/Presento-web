@@ -57,8 +57,12 @@ export const useMyInsights = (period: Period, purpose: Purpose | null) =>
 export const useScoreTimeline = (period: Period, purpose: Purpose | null) =>
   useQuery({ queryKey: ['mypage', 'timeline', period, purpose], queryFn: () => getScoreTimeline(period, purpose), staleTime: STALE, placeholderData: keepPreviousData });
 
-/** A3 내 정보. 로그인 때 저장한 사용자를 먼저 보여 주고 서버 값으로 바꾼다. */
+/**
+ * A3 내 정보. 서버 값이 오기 전이나 불러오지 못했을 때는 로그인 때 저장한 사용자를 쓴다.
+ * (placeholderData 는 오류가 나면 사라져 프로필이 비어 버린다.)
+ */
 export function useMe() {
   const { user } = useAuth();
-  return useQuery({ queryKey: ['me'], queryFn: getMe, staleTime: 5 * 60_000, placeholderData: user ?? undefined });
+  const me = useQuery({ queryKey: ['me'], queryFn: getMe, staleTime: 5 * 60_000 });
+  return { user: me.data ?? user, isError: me.isError };
 }
