@@ -8,7 +8,6 @@ import {
 import { SummarySection } from './mypage/SummarySection';
 import { InsightsSection } from './mypage/InsightsSection';
 import { MetricsSection } from './mypage/MetricsSection';
-import { ActivitySection } from './mypage/ActivitySection';
 import '@/styles/mypage/page.css';
 
 // 명세(presento-mypage-spec.md) 2장 레이아웃 순서. 세 API 는 같은 period·purpose 로 함께 부르고,
@@ -33,7 +32,6 @@ export function MyPage() {
           <SummarySection stats={stats} timeline={timeline} />
           <InsightsSection insights={insights} />
           <MetricsSection stats={stats} insights={insights} />
-          <ActivitySection stats={stats} />
         </div>
       )}
     </main>
