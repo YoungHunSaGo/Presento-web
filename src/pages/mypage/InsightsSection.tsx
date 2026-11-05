@@ -10,10 +10,29 @@ export interface InsightsSectionProps { insights: UseQueryResult<MyInsights> }
 export function InsightsSection({ insights }: InsightsSectionProps) {
   return (
     <SectionFrame id="mp-insights" title="강점과 약점">
-      <QueryView query={insights} minHeight={220}>{(d) => <Ready d={d} />}</QueryView>
+      <QueryView query={insights} minHeight={220}>{(d) => (d.status === 'INSUFFICIENT_DATA' ? <Insufficient d={d} /> : <Ready d={d} />)}</QueryView>
     </SectionFrame>
   );
 }
+
+/**
+ * 명세 2장: 데이터가 적으면 강점·약점·집중 포인트 영역 대신 이 문구만 보인다(문구는 명세 그대로).
+ * 옆의 칸 막대는 '몇 회 남았는지'를 보조로 보여 줄 뿐이라 읽기 도구에서는 숨긴다.
+ */
+function Insufficient({ d }: { d: MyInsights }) {
+  const steps = Math.max(1, Math.min(d.requiredCount, MAX_STEPS));
+  // requiredCount 가 칸 수보다 크면 비율로 줄여 채운다.
+  const filled = Math.min(steps, Math.floor((d.analysisCount / Math.max(1, d.requiredCount)) * steps));
+  return (
+    <div className="ins-insufficient">
+      <span className="ins-steps" aria-hidden="true">
+        {Array.from({ length: steps }, (_, i) => <span key={i} className={i < filled ? 'on' : undefined} />)}
+      </span>
+      <p className="t-body">분석을 {d.requiredCount}회 이상 완료하면 강점과 약점을 알려드려요. (현재 {d.analysisCount}회)</p>
+    </div>
+  );
+}
+const MAX_STEPS = 10;
 
 function Ready({ d }: { d: MyInsights }) {
   return (

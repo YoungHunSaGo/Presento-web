@@ -34,6 +34,14 @@
 .ins-empty { margin: 0; min-height: 152px; display: grid; place-content: center; text-align: center; padding: var(--s-6);
   border: 1px dashed var(--line-2); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.6); }
 
+/* 데이터 부족(INSUFFICIENT_DATA): 카드·집중 포인트 대신 안내 한 줄 + 남은 회차 칸 */
+.ins-insufficient { display: grid; justify-items: center; gap: var(--s-4); text-align: center; padding: var(--s-8) var(--s-6);
+  border: 1px dashed var(--line-2); border-radius: var(--radius-control); background: rgba(255, 255, 255, 0.6); }
+.ins-insufficient .t-body { max-width: 480px; }
+.ins-steps { display: flex; gap: var(--s-1); width: 100%; max-width: 160px; }
+.ins-steps > span { flex: 1; height: 6px; border-radius: 3px; background: var(--line-2); }
+.ins-steps > span.on { background: var(--ink); }
+
 @media (max-width: 760px) {
   .ins-cols { grid-template-columns: minmax(0, 1fr); gap: var(--s-8); }
 }
