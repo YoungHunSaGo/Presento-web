@@ -37,12 +37,14 @@ type Part = { n: number; unit: string };
 
 /**
  * 총 연습 시간을 읽기 쉬운 단위로. 1분 미만은 초, 1시간 미만은 분, 그 이상은 시간+분.
- * 요약 카드라 분 아래 초는 버린다(minutesLabel 의 '166분 40초'보다 '2시간 46분'이 한눈에 읽힌다).
+ * 요약 카드라 초는 분으로 반올림한다(minutesLabel 의 '166분 40초'보다 '2시간 47분'이 한눈에 읽힌다).
+ * 버리면 2874.5초(47분 54초)가 47분으로 줄어 보여, 가장 가까운 분(48분)으로 둔다.
  */
 function practiceParts(sec: number): Part[] {
-  const s = Math.max(0, Math.floor(sec));
+  const s = Math.max(0, Math.round(sec));
   if (s < 60) return [{ n: s, unit: '초' }];
-  const h = Math.floor(s / 3600); const m = Math.floor((s % 3600) / 60);
+  const min = Math.round(s / 60);
+  const h = Math.floor(min / 60); const m = min % 60;
   if (h === 0) return [{ n: m, unit: '분' }];
   return m ? [{ n: h, unit: '시간' }, { n: m, unit: '분' }] : [{ n: h, unit: '시간' }];
 }
