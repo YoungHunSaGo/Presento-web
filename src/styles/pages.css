@@ -5,9 +5,8 @@
 /* 열을 minmax(0, 1fr)로 두어야 480px 데모가 칸을 밀어내지 않고 칸 폭에 맞춰 줄어든다. */
 .auth-pitch { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; }
 .auth-pitch .t-body { max-width: 560px; }
-/* 소개 제목은 옆 '로그인' 제목(.t-h1, 40px)보다 커지지 않게 한다.
-   두 칸일 때 왼쪽 칸은 100vw - 635px. 첫 줄(56px에서 405px)이 한 줄에 들어가도록 칸 폭에 맞춰 줄인다. */
-.auth-pitch .t-display { font-size: clamp(30px, calc(13.5vw - 88px), 40px); line-height: 1.2; letter-spacing: -0.03em; }
+/* 소개 제목은 옆 '로그인' 제목(.t-h1)과 같은 크기로 둔다. */
+.auth-pitch .t-display { font-size: 40px; line-height: 48px; letter-spacing: -0.03em; }
 .auth-demo { margin: 20px 0 0; width: 480px; max-width: 100%; display: grid; gap: 0; }
 .auth-demo-frame { position: relative; height: 168px; border-radius: 14px; background: var(--video); box-shadow: var(--shadow-media); padding: 16px 18px; display: flex; flex-direction: column; justify-content: space-between; }
 .auth-demo-cap { margin: 0; text-align: center; color: #fff; font-size: 18px; line-height: 26px; font-weight: 500; padding-bottom: 10px; }
@@ -139,13 +138,18 @@
   .report-grid { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'side' 'main' 'metrics'; }
   .recorder { grid-template-columns: 1fr; }
 }
-@media (max-width: 860px) {
-  .auth { padding: 96px 24px 48px; place-items: start center; }
-  .auth-logo { left: 24px; top: 28px; }
-  .auth-grid { grid-template-columns: 1fr; gap: 32px; }
+/* 로그인: 왼쪽 소개 칸(100vw - 635px)이 로그인 칸(408px)보다 좁아지면 위아래로 쌓는다. */
+@media (max-width: 1042px) {
+  .auth { place-items: start center; }
+  .auth-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; max-width: 480px; }
   .auth-divider { display: none; }
   .auth-form { order: -1; }
   .auth-demo { width: 100%; }
+}
+@media (max-width: 860px) {
+  .auth { padding: 96px 24px 48px; }
+  .auth-logo { left: 24px; top: 28px; }
+  .auth-pitch .t-display { font-size: 30px; line-height: 38px; }
   .ptable th:nth-child(2), .ptable td:nth-child(2), .ptable th:nth-child(5), .ptable td:nth-child(5) { display: none; }
   /* 좁은 화면: 숫자 열을 줄여 발표 열에 폭을 더 준다. */
   .ptable th:nth-child(3) { width: 64px; }
