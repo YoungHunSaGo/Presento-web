@@ -10,9 +10,9 @@ export interface InsightsSectionProps { insights: UseQueryResult<MyInsights> }
 export function InsightsSection({ insights }: InsightsSectionProps) {
   // 판정에 쓴 회차 수(basedOnRecent, 최대 10)를 제목 옆에 작게 둔다. READY 이고 지금 필터의 결과일 때만.
   // TODO(spec): 이 표시와 문구('최근 N회 기준')는 명세에 없다. 넣을지·문구를 무엇으로 할지 확인 필요.
-  const d = insights.isSuccess && !insights.isPlaceholderData ? insights.data : null;
-  const basis = d?.status === 'READY' && d.basedOnRecent > 0
-    ? <span className="t-caption c-3">최근 <span className="num">{d.basedOnRecent}</span>회 기준</span> : null;
+  const current = insights.isSuccess && !insights.isPlaceholderData ? insights.data : null;
+  const basis = current?.status === 'READY' && current.basedOnRecent > 0
+    ? <span className="t-caption c-3">최근 <span className="num">{current.basedOnRecent}</span>회 기준</span> : null;
   return (
     <SectionFrame id="mp-insights" title="강점과 약점" aside={basis}>
       <QueryView query={insights} minHeight={220}>{(d) => (d.status === 'INSUFFICIENT_DATA' ? <Insufficient d={d} /> : <Ready d={d} />)}</QueryView>
@@ -26,8 +26,9 @@ export function InsightsSection({ insights }: InsightsSectionProps) {
  */
 function Insufficient({ d }: { d: MyInsights }) {
   const steps = Math.max(1, Math.min(d.requiredCount, MAX_STEPS));
-  // requiredCount 가 칸 수보다 크면 비율로 줄여 채운다.
-  const filled = Math.min(steps, Math.floor((d.analysisCount / Math.max(1, d.requiredCount)) * steps));
+  // 칸 하나가 1회. requiredCount 가 칸 수보다 크면 비율로 줄여 채운다.
+  const filled = d.requiredCount <= MAX_STEPS ? Math.min(d.analysisCount, steps)
+    : Math.min(steps, Math.floor((d.analysisCount / d.requiredCount) * steps));
   return (
     <div className="ins-insufficient">
       <span className="ins-steps" aria-hidden="true">
