@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { createAnalysis, startAnalysis } from '@/api/endpoints';
 import { errorMessage, putToUploadUrl } from '@/api/client';
 
-export const VIDEO_MAX = 500 * 1024 * 1024;
+export const VIDEO_MAX = 2 * 1024 * 1024 * 1024;
 export const VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'];
 
 /** 명세 핵심 흐름: N1(회차 + 업로드 URL) → URL로 직접 PUT → N2(분석 시작) → 진행 화면 */
