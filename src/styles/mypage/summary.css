@@ -52,6 +52,16 @@
 .mp-tip-cats dt, .mp-tip-cats dd { margin: 0; }
 .mp-tip-cats dd { color: var(--text); }
 
+/* 표로 보기 */
+.mp-trend-table { border-top: 1px solid var(--line); padding-top: var(--s-2); }
+.mp-trend-table summary { cursor: pointer; width: fit-content; font-weight: 600; color: var(--text-2); }
+.mp-trend-table summary:hover { color: var(--text); }
+.mp-trend-scroll { overflow-x: auto; margin-top: var(--s-2); }
+.mp-trend-table table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+.mp-trend-table th { text-align: left; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-3); padding: var(--s-1) var(--s-3) var(--s-1) 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mp-trend-table td { padding: var(--s-2) var(--s-3) var(--s-2) 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mp-trend-table tr:last-child td { border-bottom: 0; }
+
 @media (max-width: 860px) {
   .mp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
 }
@@ -61,7 +71,7 @@
   .mp-card-num { font-size: 28px; line-height: 34px; }
   .mp-card-unit { font-size: 14px; line-height: 22px; }
   .mp-trend-fig { padding: var(--s-3) var(--s-2) var(--s-3); }
-  .mp-trend-cap { margin-inline: var(--s-2); }
+  .mp-trend-cap, .mp-trend-table { margin-inline: var(--s-2); }
   .mp-trend-plot { height: 220px; }
   .mp-trend-empty { padding: var(--s-4); }
   .mp-legend-item { min-height: 32px; padding: 0 10px; font-size: 13px; }

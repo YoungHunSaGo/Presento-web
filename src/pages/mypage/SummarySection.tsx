@@ -200,6 +200,7 @@ function TrendChart({ t, shown }: { t: ScoreTimeline; shown: Record<Category, bo
         {total > items.length && <span>전체 <span className="t-data">{total}</span>회 중 최근 <span className="t-data">{items.length}</span>회만 보여 줘요. </span>}
         점을 누르면 그 회차 리포트로 이동해요.
       </figcaption>
+      <TrendTable points={points} />
     </figure>
   );
 }
@@ -220,5 +221,31 @@ function TrendTooltip({ active, payload, shown }: TooltipProps<number, string> &
         </dl>
       )}
     </div>
+  );
+}
+
+/** 차트를 보지 못하거나 키보드로 쓰는 사람을 위한 표 보기. 회차마다 리포트 링크가 있다. */
+function TrendTable({ points }: { points: Point[] }) {
+  return (
+    <details className="mp-trend-table">
+      <summary className="t-small">표로 보기</summary>
+      <div className="mp-trend-scroll">
+        <table>
+          <thead>
+            <tr><th scope="col">날짜</th><th scope="col">회차</th><th scope="col">종합</th>{CATEGORIES.map((c) => <th key={c} scope="col">{CATEGORY_LABEL[c]}</th>)}</tr>
+          </thead>
+          <tbody>
+            {[...points].reverse().map((p) => (
+              <tr key={p.analysisId}>
+                <td className="t-data">{shortDate(p.createdAt)}</td>
+                <td><Link className="link link-plain" to={`/analyses/${p.analysisId}`}>{p.presentationTitle} {p.attemptNo}회차</Link></td>
+                <td className="t-data">{p.overallScore} <span className="c-3">{p.grade}</span></td>
+                {CATEGORIES.map((c) => <td key={c} className="t-data">{dash(p.scores[c])}</td>)}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
   );
 }
