@@ -6,10 +6,13 @@
   grid-template-areas: 'radar table' 'side table'; column-gap: var(--s-12); row-gap: var(--s-8); align-items: start; }
 .mpm-area-radar { grid-area: radar; }
 .mpm-area-table { grid-area: table; }
-.mpm-area { display: grid; gap: var(--s-3); min-width: 0; }
+.mpm-area-side { grid-area: side; }
+.mpm-area, .mpm-area-side { display: grid; gap: var(--s-3); min-width: 0; }
+.mpm-side { display: grid; gap: var(--s-8); }
 .mpm-h { font-size: 16px; line-height: 24px; font-weight: 700; margin: 0; }
 .mpm-note { margin: 0; padding: var(--s-6) var(--s-4); border: 1px dashed var(--line-2); border-radius: var(--radius-control);
   font-size: 14px; line-height: 22px; color: var(--text-2); text-align: center; }
+.mpm-note-sm { padding: var(--s-4); }
 
 /* ---- 레이더 ---- */
 .mpm-radar { display: grid; gap: var(--s-4); }
@@ -59,6 +62,14 @@
 .mpm-bar { flex: 1; min-width: 0; height: 6px; border-radius: 3px; background: var(--line); overflow: hidden; }
 .mpm-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--ink); }
 
+/* ---- 추임새·피드백 순위 ---- */
+.mpm-rank { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--s-2); }
+.mpm-rank-item { display: grid; grid-template-columns: minmax(0, 6.5em) minmax(40px, 1fr) 3.5em; gap: var(--s-3); align-items: center; font-size: 14px; line-height: 22px; }
+.mpm-rank-name { font-weight: 600; color: var(--text); }
+.mpm-rank-bar { height: 8px; border-radius: 4px; }
+.mpm-rank-bar > span { background: var(--ink-2); }
+.mpm-rank-count { text-align: right; font-family: var(--font-data); font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--text-2); }
+
 /* 표 칸이 좁아지기 전에 한 줄씩 쌓는다(1200px 이하면 두 칸일 때 이름·설명 칸이 220px 아래로 줄어 설명이 너무 잘게 끊긴다).
    레이더는 차트 옆에 숫자를, 추임새·피드백은 두 칸으로. 720px 이하에서는 표 줄을 접는다. */
 @media (max-width: 1200px) {
@@ -67,6 +78,7 @@
   .mpm-avg { grid-template-columns: minmax(0, 1fr); border-top: 0; }
   .mpm-avg-item, .mpm-avg-item:first-child { padding: var(--s-3) 0; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; }
   .mpm-avg-item + .mpm-avg-item { border-left: 0; border-top: 1px solid var(--line); }
+  .mpm-side { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-8); }
 }
 @media (max-width: 720px) {
   .mpm-radar { grid-template-columns: minmax(0, 1fr); }
@@ -75,6 +87,7 @@
   .mpm-avg-item, .mpm-avg-item:first-child { grid-template-columns: none; padding: var(--s-3) var(--s-2) 0; }
   .mpm-avg-item:first-child { padding-left: 0; }
   .mpm-avg-item + .mpm-avg-item { border-top: 0; border-left: 1px solid var(--line); }
+  .mpm-side { grid-template-columns: minmax(0, 1fr); }
   /* 줄마다: 이름 · 수치 · 추이 / 점수 막대 / 설명. 머리글은 보이지 않게만 둔다(화면 읽기용). */
   .mpm-thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
   .mpm-tr { grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: 'label value trend' 'score score score' 'msg msg msg'; column-gap: var(--s-3); row-gap: 6px; }

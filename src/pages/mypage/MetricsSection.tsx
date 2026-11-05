@@ -42,6 +42,24 @@ export function MetricsSection({ stats, insights }: MetricsSectionProps) {
           <h3 className="mpm-h">세부 항목</h3>
           <QueryView query={insights} minHeight={480}>{(d) => <MetricTable d={d} />}</QueryView>
         </div>
+        {/* 추임새·피드백도 M2 라 로딩·오류는 위 세부 항목 자리에서 한 번만 보여 주고, 받은 뒤에만 그린다. */}
+        {insights.isSuccess && (
+          <div className="mpm-area-side">
+            <QueryView query={insights}>{(d) => (
+              <div className="mpm-side">
+                <div className="mpm-area">
+                  <h3 className="mpm-h">자주 쓰는 추임새</h3>
+                  <RankList items={d.topFillers.map((f) => ({ key: f.word, name: f.word, count: f.count }))} unit="회" empty="아직 기록된 추임새가 없어요" />
+                </div>
+                <div className="mpm-area">
+                  <h3 className="mpm-h">자주 받은 피드백</h3>
+                  {/* label 은 서버 문구 그대로. TODO(spec): count 가 피드백 개수인지 회차 수인지 명세에 없어 '건'으로 적는다. */}
+                  <RankList items={d.frequentFeedbackTypes.map((f) => ({ key: f.type, name: f.label, count: f.count }))} unit="건" empty="아직 받은 피드백이 없어요" />
+                </div>
+              </div>
+            )}</QueryView>
+          </div>
+        )}
       </div>
     </SectionFrame>
   );
@@ -158,5 +176,23 @@ function MetricRow({ m }: { m: Insight }) {
       <td role="cell" className="mpm-c-value">{m.valueText}</td>
       <td role="cell" className="mpm-c-msg">{m.message}</td>
     </tr>
+  );
+}
+
+// ---- 추임새·피드백 순위(서버 순서 그대로, 많은 순) ----
+
+function RankList({ items, unit, empty }: { items: { key: string; name: string; count: number }[]; unit: string; empty: string }) {
+  if (items.length === 0) return <p className="mpm-note mpm-note-sm">{empty}</p>;
+  const max = Math.max(1, ...items.map((i) => i.count));
+  return (
+    <ol className="mpm-rank">
+      {items.map((i) => (
+        <li key={i.key} className="mpm-rank-item">
+          <span className="mpm-rank-name">{i.name}</span>
+          <span className="mpm-bar mpm-rank-bar" aria-hidden="true"><span style={{ width: pct((i.count / max) * 100) }} /></span>
+          <span className="mpm-rank-count">{i.count}{unit}</span>
+        </li>
+      ))}
+    </ol>
   );
 }
