@@ -1,1 +1,79 @@
 /* 마이페이지 요약 카드 + 점수 추이 (src/pages/mypage/SummarySection.tsx) */
+
+/* ---- 요약 카드 4개 ---- */
+.mp-cards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-4); margin: 0; }
+.mp-card { display: grid; align-content: start; gap: var(--s-2); min-width: 0; padding: var(--s-4) var(--s-6) var(--s-6);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.mp-card dt, .mp-card dd { margin: 0; }
+.mp-card-label { font-size: 14px; line-height: 22px; font-weight: 600; color: var(--text-2); }
+/* 값: 숫자는 데이터 글꼴, 단위는 본문 글꼴로 작게. 숫자 밑줄(baseline)을 맞춘다. */
+.mp-card-value { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--s-2); color: var(--text); }
+.mp-card-part { display: inline-flex; align-items: baseline; gap: 2px; white-space: nowrap; }
+.mp-card-num { font-family: var(--font-data); font-size: 36px; line-height: 40px; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+.mp-card-unit { font-size: 16px; line-height: 24px; font-weight: 700; color: var(--text-2); }
+.mp-card-sub { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); font-size: 13px; line-height: 20px; color: var(--text-2); }
+
+/* ---- 점수 추이 ---- */
+.mp-trend { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); min-width: 0; margin-top: var(--s-4); }
+.mp-trend-head { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); flex-wrap: wrap; }
+.mp-trend-fig { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); min-width: 0; padding: var(--s-4) var(--s-4) var(--s-3);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); }
+.mp-trend-plot { height: 280px; min-width: 0; }
+.mp-trend-dot { cursor: pointer; }
+.mp-trend-cap { margin: 0; }
+.mp-trend-empty { display: grid; justify-items: start; gap: var(--s-2); padding: var(--s-6);
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); }
+
+/* 범례: 종합(고정) + 항목 토글 3개 */
+.mp-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.mp-legend-item { display: inline-flex; align-items: center; gap: 6px; min-height: 36px; padding: 0 12px; border-radius: 999px;
+  font-size: 14px; line-height: 20px; font-weight: 600; white-space: nowrap; }
+.mp-legend-fixed { padding-left: 0; color: var(--text); }
+.mp-legend-btn { border: 1px solid var(--line-2); background: var(--surface); color: var(--text-3); cursor: pointer;
+  transition: background-color 160ms var(--ease-out), border-color 160ms var(--ease-out), color 160ms var(--ease-out); }
+.mp-legend-btn:hover { color: var(--text); border-color: var(--text-3); }
+/* 꺼진 항목은 견본도 흐리게 두어 '지금 안 그려짐'이 보이게 */
+.mp-legend-btn[aria-pressed='false'] .mp-swatch { opacity: 0.45; }
+.mp-legend-btn[aria-pressed='true'] { color: var(--text); border-color: var(--ink); background: rgba(14, 15, 18, 0.04); }
+.mp-legend-btn:focus-visible { box-shadow: var(--ring); border-radius: 999px; }
+.mp-swatch { width: 24px; height: 8px; flex: none; overflow: visible; }
+
+/* 툴팁 */
+.mp-tip { display: grid; gap: 2px; min-width: 168px; max-width: 240px; padding: var(--s-3); background: var(--surface);
+  border: 1px solid var(--line-2); border-radius: var(--radius-control); box-shadow: var(--shadow-media); }
+.mp-tip p { margin: 0; }
+.mp-tip-date { color: var(--text-3); }
+.mp-tip-title { font-size: 14px; line-height: 20px; font-weight: 700; color: var(--text); }
+.mp-tip .mp-tip-score { display: flex; align-items: baseline; gap: 2px; margin-top: 2px; }
+.mp-tip-unit { font-size: 13px; font-weight: 700; color: var(--text-2); }
+.mp-tip-grade { margin-left: var(--s-2); font-weight: 700; color: var(--text-2); }
+.mp-tip-cats { display: grid; gap: 0; margin: var(--s-1) 0 0; padding-top: var(--s-1); border-top: 1px solid var(--line); }
+.mp-tip-cats div { display: flex; justify-content: space-between; gap: var(--s-3); font-size: 13px; line-height: 20px; color: var(--text-2); }
+.mp-tip-cats dt, .mp-tip-cats dd { margin: 0; }
+.mp-tip-cats dd { color: var(--text); }
+
+/* 표로 보기 */
+.mp-trend-table { min-width: 0; border-top: 1px solid var(--line); padding-top: var(--s-2); }
+.mp-trend-table summary { cursor: pointer; width: fit-content; font-weight: 600; color: var(--text-2); }
+.mp-trend-table summary:hover { color: var(--text); }
+.mp-trend-scroll { overflow-x: auto; margin-top: var(--s-2); }
+.mp-trend-table table { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 22px; }
+.mp-trend-table th { text-align: left; font-size: 13px; line-height: 20px; font-weight: 600; color: var(--text-3); padding: var(--s-1) var(--s-3) var(--s-1) 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mp-trend-table td { padding: var(--s-2) var(--s-3) var(--s-2) 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.mp-trend-table tr:last-child td { border-bottom: 0; }
+
+@media (max-width: 860px) {
+  .mp-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+}
+@media (max-width: 480px) {
+  .mp-card { padding: var(--s-3) var(--s-4) var(--s-4); gap: var(--s-1); }
+  .mp-card-label { font-size: 13px; line-height: 20px; }
+  .mp-card-num { font-size: 28px; line-height: 34px; }
+  .mp-card-unit { font-size: 14px; line-height: 22px; }
+  .mp-trend-fig { padding: var(--s-3) var(--s-2) var(--s-3); }
+  .mp-trend-cap, .mp-trend-table { margin-inline: var(--s-2); }
+  .mp-trend-plot { height: 220px; }
+  .mp-trend-empty { padding: var(--s-4); }
+  .mp-legend-item { min-height: 32px; padding: 0 10px; font-size: 13px; }
+  .mp-legend-fixed { padding-left: 0; }
+}
